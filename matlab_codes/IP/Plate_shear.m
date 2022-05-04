@@ -1,6 +1,6 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-function [U, coor, ndof, dUdp1] = Plate_shear(P)
+function [U, coor, ndof, dUdp] = Plate_shear(P)
 addpath(genpath('../'))                    % adds to path all subdirectories 
 % clear all                                % clear all vairables 
 
@@ -84,7 +84,7 @@ K=spalloc(analysis.neq,analysis.neq,ncoeffs);% allocates sparse matrix
 F=zeros(analysis.neq,1);                     % allocates rhs vector
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd
-dKdp=spalloc(analysis.neq,analysis.neq,ncoeffs);
+dKdp=zeros(analysis.neq,analysis.neq,length(P));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -132,7 +132,9 @@ for e=1:analysis.NE,                         % stiffness matrix assemblage
  Ie=Ge(Le0);                                % global numbering 
  K(Ie,Ie)=K(Ie,Ie)+Ke(Le0,Le0);             % matrix assemblage
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- dKdp(Ie,Ie)=dKdp(Ie,Ie)+dKedp(Le0,Le0);
+ for i=length(P)
+    dKdp(Ie,Ie,i)=dKdp(Ie,Ie,i)+dKedp(Le0,Le0,i);
+ end
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  LeD=find(Ge<0);                            % local numbering of prescr. b.c 
  F(Ie)=F(Ie)-Ke(Le0,LeD)*Ue(LeD);           % assemblage of rhs
@@ -175,8 +177,12 @@ end
 U=K\F;                                       % solution of linear system
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd
-dUdp1 = zeros(analysis.NN*ndof,1);
-dUdp1_temp = -K\(dKdp*U);
+dUdp = zeros(analysis.NN*ndof,length(P));
+% dUdp_temp = zeros(analysis.NN*ndof,length(P));
+for i = 1:length(P)
+    dUdp_temp(:,i) = -K\(dKdp(:,:,i)*U);
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear K F                                    % clears memory
 
@@ -197,13 +203,13 @@ for n=1:analysis.NN             % loop over the nodes
   if dof>0                      % if it is unknwon
    nodes(n).U(dir)=U(dof);      % fills nodal value from sol vector
 
-   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    if dir<2
-      dUdp1(n*ndof-1) = dUdp1_temp(dof);
+      dUdp(n*ndof-1,:) = dUdp_temp(dof,:);
    else
-      dUdp1(n*ndof) = dUdp1_temp(dof);
+      dUdp(n*ndof,:) = dUdp_temp(dof,:);
    end
-   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   end 
  end
 end

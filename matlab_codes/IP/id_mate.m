@@ -26,7 +26,7 @@ U = U + U_noise; % with noise
 % calculate the derivates of U respect to P
 dUdp = zeros(size(U,1)*ndof,length(P));
 for i = 1:length(P)
-    dpi = 1e-3;
+    dpi = 1e-3;     % add a small perturbation at one component of P each time
     dp = zeros(1,length(P));
     dp(i) = dpi;
     % dp = [1 0.1 1e-4 1e-2];
@@ -47,36 +47,26 @@ Q1 = dUdp(L1,:)'*dUdp(L1,:) + dUdp(L1+size(U,1),:)'*dUdp(L1+size(U,1),:);
 b = trace(Q);   
 b1 = trace(Q1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-L = [];
+L0 = [];
 N0 = 10;
-for n = 1:N0
-    Q_trace = zeros(size(U,1),1);
-    for i = 1:size(U,1)
-        if (~ismember(i,L))
-            L_temp = [L,i];
-            Q = dUdp(L_temp,:)'*dUdp(L_temp,:)+...
-            dUdp(L_temp+size(U,1),:)'*dUdp(L_temp+size(U,1),:);
-            Q_trace(i) = trace(Q);
-        end
-    end  
-    [Q_trace_max,ind] = max(Q_trace);
-    L = [L, ind];
-end
+L_E = FSSP_FIM(L0,N0,U,dUdp(:,1));
+L_nu = FSSP_FIM(L0,N0,U,dUdp(:,2));
+L_global = FSSP_FIM(L0,N0,U,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 a = 1;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% adjoint method to compute the gradient of cost function
-% L0 = 1:size(U);
-% C = nchoosek(L0',4)
-% L0 = randperm(size(U,1),10);
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 Uobs = U(L,:);
-dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% adjoint method to compute the gradient of cost function% L0 = 1:size(U);
+% C = nchoosek(L0',4)
+% L0 = randperm(size(U,1),10);
+dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's modulus.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parameter identification 
 % Pini = [100e3 8e3 0.4 3e3];
 Pini = [0.4 0.4];
