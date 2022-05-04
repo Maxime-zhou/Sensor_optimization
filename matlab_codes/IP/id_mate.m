@@ -47,17 +47,23 @@ Q1 = dUdp(L1,:)'*dUdp(L1,:) + dUdp(L1+size(U,1),:)'*dUdp(L1+size(U,1),:);
 b = trace(Q);   
 b1 = trace(Q1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% N0 = 10;
-% N = 0;
-% L = [];
-% for i = 1:N0
-%     N = N+1;
-%     for j = 1:size(U,1)
-%         
-%     end
-% end
+L = [];
+N0 = 10;
+for n = 1:N0
+    Q_trace = zeros(size(U,1),1);
+    for i = 1:size(U,1)
+        if (~ismember(i,L))
+            L_temp = [L,i];
+            Q = dUdp(L_temp,:)'*dUdp(L_temp,:)+...
+            dUdp(L_temp+size(U,1),:)'*dUdp(L_temp+size(U,1),:);
+            Q_trace(i) = trace(Q);
+        end
+    end  
+    [Q_trace_max,ind] = max(Q_trace);
+    L = [L, ind];
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+a = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % adjoint method to compute the gradient of cost function
