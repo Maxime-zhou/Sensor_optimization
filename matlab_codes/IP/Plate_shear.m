@@ -1,14 +1,14 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-function [U, coor, ndof, dUdp] = Plate_shear(P)
+function [U, K, dKdp, coor, ndof, dUdp] = Plate_shear(P)
 addpath(genpath('../'))                    % adds to path all subdirectories 
 % clear all                                % clear all vairables 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % preprocessor phase: reads input from files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-name = 'plate_shear.m';
-% name = 'plate_shear_orth.m';
+% name = 'plate_shear.m';
+name = 'plate_shear_orth.m';
 %-----------------------------------------------------------------------------------------
 % disp('...........................')
 % disp(['Reading input file: ' name])
@@ -85,7 +85,7 @@ F=zeros(analysis.neq,1);                     % allocates rhs vector
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd
 dKdp=zeros(analysis.neq,analysis.neq,length(P));
-
+% dJdU=zeros(analysis.neq,1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,15 +127,15 @@ for e=1:analysis.NE,                         % stiffness matrix assemblage
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % add by zzd
  dKedp=eval([Etag Atag 'dKedp(Xe,material(mat,:))']);
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  Le0=find(Ge>0);                            % local numbering of unknowns
  Ie=Ge(Le0);                                % global numbering 
  K(Ie,Ie)=K(Ie,Ie)+Ke(Le0,Le0);             % matrix assemblage
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- for i=length(P)
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ for i=1:length(P)
     dKdp(Ie,Ie,i)=dKdp(Ie,Ie,i)+dKedp(Le0,Le0,i);
  end
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  LeD=find(Ge<0);                            % local numbering of prescr. b.c 
  F(Ie)=F(Ie)-Ke(Le0,LeD)*Ue(LeD);           % assemblage of rhs
 end
@@ -184,7 +184,7 @@ for i = 1:length(P)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clear K F                                    % clears memory
+% clear K F                                    % clears memory
 
 
 

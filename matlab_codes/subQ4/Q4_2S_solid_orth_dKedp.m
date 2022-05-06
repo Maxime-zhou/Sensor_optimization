@@ -1,20 +1,42 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 % Linear elastic stiffness matrix: Q4
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-function [dKedp]=Q4_2S_solid_dKedp(X,mate)
+function dKedp=Q4_2S_solid_orth_dKedp(X,mate)
 
-E=mate(1);
-nu=mate(2);
+E1=mate(1); % mate: material properties
+E2=mate(2);
+nu12=mate(3);
+G12 = mate(4);
+
+nu21 = nu12/E1*E2;
+% A=E/(1-nu^2)*[1,nu,0;
+%               nu,1,0;
+%               0,0,(1-nu)/2];
 A = zeros(3,3,length(mate));
-A(:,:,1)=1/(1-nu^2)*[1,nu,0;
-              nu,1,0;
-              0,0,(1-nu)/2];  
-A(:,:,2)=E/(1-nu^2)^2*[2*nu, nu^4-4*nu^2+1, 0;
-                 nu^4-4*nu^2+1, 2*nu, 0;
-                 0, 0, -nu^2/2+nu-1/2];
+  
+% A = [E1/(1-nu12*nu21),    nu12*E2/(1-nu12*nu21),  0;
+%      nu21*E1/(1-nu12*nu21), E2/(1-nu12*nu21),   0;
+%       0,            0,             G12];
+
+A(:,:,1) = [1/(1-nu12*nu21), 0, 0;
+            nu21/(nu12*nu21), 0, 0;
+            0, 0, 0];
+
+A(:,:,2) = [0, nu12/(1-nu12*nu21), 0;
+            0, 1/(1-nu12*nu21), 0;
+            0, 0, 0];
+
+A(:,:,3) = [E1*nu21/(1-nu12*nu21)^2, E2/(1-nu12*nu21)^2, 0;
+            nu21*E1*nu21/(1-nu12*nu21)^2, E2*nu21/(1-nu12*nu21)^2, 0;
+            0, 0, 0];
+
+A(:,:,4) = [0, 0, 0;
+            0, 0, 0;
+            0, 0, 1];
 
 a_gauss=1/sqrt(3)*[-1 1];                    % Gauss abscissae
 w_gauss=[1 1];                               % Gauss weights
+% Ke=zeros(8,8);
 dKedp = zeros(8,8,length(mate));
 for g1=1:2,                                  % loop over Gauss points
  a1=a_gauss(g1);                             % param. coord. of gauss point
@@ -31,10 +53,8 @@ for g1=1:2,                                  % loop over Gauss points
      0 G(1,2) 0 G(2,2) 0 G(3,2) 0 G(4,2) ;
      G(1,2) G(1,1) G(2,2) G(2,1)...
      G(3,2) G(3,1) G(4,2) G(4,1)];
-  
   for i = 1:length(mate)
     dKedp(:,:,i)=dKedp(:,:,i)+B'*A(:,:,i)*B*detJ*w_gauss(g1)*w_gauss(g2); % contrib. to stiffness matrix
-%     dKedp(:,:,2)=dKedp(:,:,2)+B'*A2*B*detJ*w_gauss(g1)*w_gauss(g2);
   end
 
  end

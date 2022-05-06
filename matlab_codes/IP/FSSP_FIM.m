@@ -10,6 +10,7 @@ for n = 1:N0
             Q = dUdp(L_temp,:)'*dUdp(L_temp,:)+...
             dUdp(L_temp+size(U,1),:)'*dUdp(L_temp+size(U,1),:);
             Q_trace(i) = trace(Q);
+%             Q_trace(i) = det(Q);
         end
     end  
     [Q_trace_max,ind] = max(Q_trace);
