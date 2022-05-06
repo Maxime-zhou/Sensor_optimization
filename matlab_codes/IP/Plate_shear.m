@@ -7,8 +7,8 @@ addpath(genpath('../'))                    % adds to path all subdirectories
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % preprocessor phase: reads input from files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-name = 'plate_shear.m';
-% name = 'plate_shear_orth.m';
+% name = 'plate_shear.m';
+name = 'plate_shear_orth.m';
 %-----------------------------------------------------------------------------------------
 % disp('...........................')
 % disp(['Reading input file: ' name])
@@ -132,7 +132,7 @@ for e=1:analysis.NE,                         % stiffness matrix assemblage
  Ie=Ge(Le0);                                % global numbering 
  K(Ie,Ie)=K(Ie,Ie)+Ke(Le0,Le0);             % matrix assemblage
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- for i=length(P)
+ for i=1:length(P)
     dKdp(Ie,Ie,i)=dKdp(Ie,Ie,i)+dKedp(Le0,Le0,i);
  end
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

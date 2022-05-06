@@ -1,20 +1,24 @@
 clear 
-P = [10 0.3];           % Young and Poisson
+% isotrpic case
+% P = [10 0.3];           % Young and Poisson
+% Pscale = [20 0.6];
+% P0 = [0.51 0.51];
 % P0 = [10.1 0.31];       % prior guess of parameters
-% P = [130e3 10e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
+
+% orthotropic case
+P = [130e3 10e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
+Pscale = [260e3 20e3 0.6 10e3];
+P0 = [0.51 0.51 0.51 0.51];
+% P0 = [131e3 10.5e3 0.31 5.1e3];
 
 % normalization 
-% Pscale = [260e3 20e3 0.6 10e3];
-Pscale = [20 0.6];
 P = P./Pscale;
-% P0 = [0.51 0.51 0.51 0.51];
-P0 = [0.51 0.51];
-% P0 = [131e3 10.5e3 0.31 5.1e3];
+
 alpha = 1e-2;            % dimensionless regularization paramete
 
-[U, coor, ndof,dUdp1] = Plate_shear(P); % observed data without noise
+[U, coor, ndof, dUdp1] = Plate_shear(P); % observed data without noise
 
-dUdp1_x = dUdp1(1:2:end);
+dUdp1_x = dUdp1(1:2:end,:);
 
 mu = 0.1*mean(abs(U)); % mean value of noise
 sigma = 0.2*mu; 
@@ -27,14 +31,15 @@ U = U + U_noise; % with noise
 dUdp = zeros(size(U,1)*ndof,length(P));
 for i = 1:length(P)
     dpi = 1e-3;     % add a small perturbation at one component of P each time
+
     dp = zeros(1,length(P));
     dp(i) = dpi;
-    % dp = [1 0.1 1e-4 1e-2];
-    dUdp(:,i) = reshape((Plate_shear(P+dp) - Plate_shear(P)),size(U,1)*2,1)./dpi;
+%     dp = [1 0.1 1e-4 1e-2];
+    dUdp(:,i) = reshape((Plate_shear(P+dp) - Plate_shear(P)),size(U,1)*2,1)/dpi;
     
     % dUdp = reshape((Plate_shear(P+dp) - Plate_shear(P)),760*2,1)/dp(2);
 end
-
+dUdp_x = dUdp(1:size(U,1),:);
 % L = randperm(size(U,1),100); % choose 100 measurement points randomly
 L = [3,4];
 % L1 = 1:100;
@@ -49,11 +54,18 @@ b1 = trace(Q1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 L0 = [];
 N0 = 10;
-L_E = FSSP_FIM(L0,N0,U,dUdp(:,1));
-L_nu = FSSP_FIM(L0,N0,U,dUdp(:,2));
+% L_E = FSSP_FIM(L0,N0,U,dUdp(:,1));
+% L_nu = FSSP_FIM(L0,N0,U,dUdp(:,2));
+% L_global = FSSP_FIM(L0,N0,U,dUdp);
+
+
+L_E1 = FSSP_FIM(L0,N0,U,dUdp(:,1));
+L_E2 = FSSP_FIM(L0,N0,U,dUdp(:,2));
+L_nu12 = FSSP_FIM(L0,N0,U,dUdp(:,3));
+L_G12 = FSSP_FIM(L0,N0,U,dUdp(:,4));
 L_global = FSSP_FIM(L0,N0,U,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-a = 1;
+% a = 1;
 
 
 Uobs = U(L,:);
@@ -62,7 +74,6 @@ Uobs = U(L,:);
 % C = nchoosek(L0',4)
 % L0 = randperm(size(U,1),10);
 dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's modulus.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
