@@ -16,7 +16,7 @@ P = P./Pscale;
 
 alpha = 1e-2;            % dimensionless regularization paramete
 
-[U, coor, ndof, dUdp1] = Plate_shear(P); % observed data without noise
+[U, K, dKdp, coor, ndof, dUdp1] = Plate_shear(P); % observed data without noise
 
 dUdp1_x = dUdp1(1:2:end,:);
 
@@ -67,13 +67,37 @@ L_global = FSSP_FIM(L0,N0,U,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
 
+Usim_temp = Plate_shear(P);
+Usim = zeros(size(U,1)*2,1);
+Usim(1:2:end) = Usim_temp(:,1);
+Usim(2:2:end) = Usim_temp(:,2);
 
+Uobs = zeros(size(U,1)*2,1);
+Uobs(1:2:end) = U(:,1);
+Uobs(2:2:end) = U(:,2);
+dJdU = abs(Usim-Uobs);   % dJdU is a function of P. Here compute it at P true value.
+% dJdU = zeros(size(U,1)*2,1);
+% dJdU(1:2:end) = dJdU_temp(:,1);
+% dJdU(2:2:end) = dJdU_temp(:,2);
+Ie=find(Usim==0);
+Uobs(Ie) = [];
+Usim(Ie) = [];
+dJdU(Ie) = [];
+
+
+phi = K'\dJdU;
+dJdp = zeros(1,length(P));
+for i=1:length(P)
+    dJdp(i) = -phi'*dKdp(:,:,i)*Uobs + alpha*abs(P(i)-P0(i));
+end
 Uobs = U(L,:);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % adjoint method to compute the gradient of cost function% L0 = 1:size(U);
 % C = nchoosek(L0',4)
 % L0 = randperm(size(U,1),10);
 dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's modulus.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
