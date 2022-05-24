@@ -9,8 +9,9 @@ A = zeros(3,3,length(mate));
 A(:,:,1)=1/(1-nu^2)*[1,nu,0;
               nu,1,0;
               0,0,(1-nu)/2];  
-A(:,:,2)=E/(1-nu^2)^2*[2*nu, nu^4-4*nu^2+1, 0;
-                 nu^4-4*nu^2+1, 2*nu, 0;
+
+A(:,:,2)=E/(1-nu^2)^2*[2*nu, 1+nu^2, 0;
+                 1+nu^2, 2*nu, 0;
                  0, 0, -nu^2/2+nu-1/2];
 
 a_gauss=1/sqrt(3)*[-1 1];                    % Gauss abscissae

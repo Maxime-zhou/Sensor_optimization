@@ -2,7 +2,6 @@ file='MyGeometry_rect_coarse.msh';
 
 % ANALYSIS TYPE
 analysis.type = 5;
-% analysis.type = 8;
 
 % MATERIAL: Young and Poisson
 material = [10 0.3];
