@@ -1,7 +1,7 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 % function [U, K, dKdp, coor, ndof, dUdp] = Plate_shear(P)
-function Plate_shear(P)
+function [analysis, nodes, elements] = Plate_shear(P)
 addpath(genpath('../'))                    % adds to path all subdirectories 
 % clear all                                % clear all vairables 
 

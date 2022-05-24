@@ -16,8 +16,8 @@ P = P./Pscale;
 
 alpha = 1e-2;            % dimensionless regularization paramete
 
-% [U, K, dKdp, coor, ndof, dUdp1] = Plate_shear(P); % observed data without noise
-Plate_shear(P);
+[analysis, nodes, elements] = Plate_shear(P); % observed data without noise
+% Plate_shear(P);
 dUdp1_x = dUdp1(1:2:end,:);
 
 mu = 0.1*mean(abs(U)); % mean value of noise
