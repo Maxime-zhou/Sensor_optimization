@@ -1,7 +1,7 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-% function [U, K, dKdp, coor, ndof, dUdp] = Plate_shear(P)
-function Plate_shear(P)
+function [U, K, dKdp, dUdp] = Plate_shear(P)
+% function [analysis, nodes, elements, dUdp] = Plate_shear(P)
 addpath(genpath('../'))                    % adds to path all subdirectories 
 % clear all                                % clear all vairables 
 
@@ -216,9 +216,10 @@ for n=1:analysis.NN             % loop over the nodes
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd
-U = zeros(NN,ndof);
+U = zeros(NN*ndof,1);
 for i = 1:analysis.NN
-    U(i,:) = nodes(i).U;
+    U(ndof*i-1) = nodes(i).U(1);
+    U(ndof*i) = nodes(i).U(2);
 end
 
 coor = zeros(NN,ndof);
