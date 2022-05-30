@@ -51,5 +51,5 @@ fclose(fmid);                                         % closes out.msh
 % launches gmsh
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dos(['gmsh.exe ', mshfile,' input/out.msh input/opti.geo']);  % runs gmsh with a dos command
-
+% dos(['gmsh.exe ', mshfile,' input/out.msh input/opti.geo']);  % runs gmsh with a dos command
+% system(['gmsh', mshfile,' input/out.msh input/opti.geo']);  % runs gmsh with a dos command
