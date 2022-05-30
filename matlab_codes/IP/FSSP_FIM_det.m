@@ -12,7 +12,6 @@ for n = 1:N0-size(dUdp,2)+1
 %             Q = dUdp(L_temp,:)'*dUdp(L_temp,:)+...
 %             dUdp(L_temp+size(U,1),:)'*dUdp(L_temp+size(U,1),:);
             Q = dUdp(L_temp,:)'*dUdp(L_temp,:);
-%             Q_trace(i) = trace(Q);
             Q_det(i) = det(Q);
         end
     end  

@@ -61,14 +61,14 @@ N0 = 10;
 % L_global = FSSP_FIM(L0,N0,U,dUdp);
 
 
-L_E1 = FSSP_FIM_Tr(N0,dUdp(:,1));
+% L_E1 = FSSP_FIM_Tr(N0,dUdp(:,1));
 % L_E2 = FSSP_FIM_Tr(N0,dUdp(:,2));
 % L_nu12 = FSSP_FIM_Tr(N0,dUdp(:,3));
 % L_G12 = FSSP_FIM_Tr(N0,dUdp(:,4));
 
 % normalize the dUdp
-dUdp_n = normalize(dUdp);
-L_global_n = FSSP_FIM_Tr(N0,dUdp_n);
+% dUdp_n = normalize(dUdp);
+% L_global = FSSP_FIM_Tr(N0,dUdp_n);
 
 
 % without normalization
