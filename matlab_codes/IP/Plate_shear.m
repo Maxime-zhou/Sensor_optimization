@@ -126,7 +126,7 @@ for e=1:analysis.NE,                         % stiffness matrix assemblage
   pos=pos+ndof;
  end
  Ke=eval([Etag Atag 'Ke(Xe,material(mat,:))']);  
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % add by zzd
  dKedp=eval([Etag Atag 'dKedp(Xe,material(mat,:))']);
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

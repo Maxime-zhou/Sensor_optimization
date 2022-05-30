@@ -46,7 +46,7 @@ for i = 1:length(P)
 end
 % dUdp_x = dUdp(1:size(U,1),:);
 % L = randperm(size(U,1),100); % choose 100 measurement points randomly
-L = [5,6,7,8];
+L = [33];
 % L1 = 1:100;
 L1 = [20 31 58 76];
 Q0 = dUdp'*dUdp;
@@ -56,19 +56,34 @@ Q = dUdp(L,:)'*dUdp(L,:);
 Q1 = dUdp(L1,:)'*dUdp(L1,:);
 b = trace(Q);   
 b1 = trace(Q1);
+b_det = det(Q);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-L0 = [];
 N0 = 10;
 % L_E = FSSP_FIM(L0,N0,U,dUdp(:,1));
 % L_nu = FSSP_FIM(L0,N0,U,dUdp(:,2));
 % L_global = FSSP_FIM(L0,N0,U,dUdp);
 
 
-L_E1 = FSSP_FIM(L0,N0,dUdp(:,1));
-L_E2 = FSSP_FIM(L0,N0,dUdp(:,2));
-L_nu12 = FSSP_FIM(L0,N0,dUdp(:,3));
-L_G12 = FSSP_FIM(L0,N0,dUdp(:,4));
-L_global = FSSP_FIM(L0,N0,dUdp);
+% L_E1 = FSSP_FIM_Tr(N0,dUdp(:,1));
+% L_E2 = FSSP_FIM_Tr(N0,dUdp(:,2));
+% L_nu12 = FSSP_FIM_Tr(N0,dUdp(:,3));
+% L_G12 = FSSP_FIM_Tr(N0,dUdp(:,4));
+
+% normalize the dUdp
+% dUdp_n = normalize(dUdp);
+% L_global = FSSP_FIM_Tr(N0,dUdp_n);
+
+
+% without normalization
+L_global = FSSP_FIM_Tr(N0,dUdp);
+
+%----------------------------------------
+% using det(Q)
+L_E1_det = FSSP_FIM_det(N0,dUdp(:,1));
+L_E2 = FSSP_FIM_det(N0,dUdp(:,2));
+L_nu12 = FSSP_FIM_det(N0,dUdp(:,3));
+L_G12 = FSSP_FIM_det(N0,dUdp(:,4));
+L_global_det = FSSP_FIM_det(N0,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
 

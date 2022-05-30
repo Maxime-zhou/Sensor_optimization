@@ -1,6 +1,6 @@
 % Forward sequential sensor placement (FSSP)
-function L = FSSP_FIM(L,N0,dUdp)
-
+function L = FSSP_FIM_Tr(N0,dUdp)
+L = [];
 Q_trace = zeros(size(dUdp,1),1);
 for n = 1:N0
 %     Q_trace = zeros(size(U,1),1);
@@ -10,8 +10,8 @@ for n = 1:N0
 %             Q = dUdp(L_temp,:)'*dUdp(L_temp,:)+...
 %             dUdp(L_temp+size(U,1),:)'*dUdp(L_temp+size(U,1),:);
             Q = dUdp(L_temp,:)'*dUdp(L_temp,:);
-            Q_trace(i) = trace(Q);
-%             Q_trace(i) = det(Q);
+%             Q_trace(i) = trace(Q);
+            Q_trace(i) = det(Q);
         end
     end  
     [Q_trace_max,ind] = max(Q_trace);
