@@ -188,9 +188,6 @@ end
 
 Sdim=La(analysis.type).Sdim; 
 Sn=zeros(analysis.NN,Sdim);             % initializes output matrix
-%%%%%
-Dn=zeros(analysis.NN,Sdim);             % initilizes strian matrix
-
 counter=zeros(analysis.NN,1);           % initializes counter list
 for e=1:analysis.NE,                    % computes nodal stresses
 
@@ -222,7 +219,7 @@ for e=1:analysis.NE,                    % computes nodal stresses
 %  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
 
- Dne=eval([Etag 'g2n(Dg)']);
+ Dne=eval([Etag 'g2n(Sg)']);
 
  Sn(connec,:)=Sn(connec,:)+Sne;         % adds to connec nodes
  Dn(connec,:)=Dn(connec,:)+Dne;
@@ -230,9 +227,6 @@ for e=1:analysis.NE,                    % computes nodal stresses
 end   
 for icomp=1:Sdim
  Sn(:,icomp)=Sn(:,icomp)./counter;      % naive average of stresses
-
- % for strian
- Dn(:,icomp)=Dn(:,icomp)./counter;
 end
 
 %-----------------------------------------------------------------------------------------

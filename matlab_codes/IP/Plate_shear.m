@@ -228,42 +228,42 @@ for i = 1:analysis.NN
     coor(i,:) = nodes(i).coor;
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Sdim=La(analysis.type).Sdim; 
-% Sn=zeros(analysis.NN,Sdim);             % initializes output matrix
-% counter=zeros(analysis.NN,1);           % initializes counter list
-% for e=1:analysis.NE,                    % computes nodal stresses
-% 
-% %-----------------------------------------------------------------------------------------
-%  perc=20*floor(5*e/analysis.NE);
-%  if perc~=percold,
-%   percold=perc;
-%   disp(['Post proc: ' num2str(percold) '%'])
-%  end
-% %-----------------------------------------------------------------------------------------
-% 
-%  type=elements(e).type;
-%  ne=Le(type).ne;                        % number of nodes in element
-%  Etag=Le(type).tag;
-%  Dne=ndof*ne;                           % number of nodal val in element
-%  Xe=zeros(ne,DG);                       % init matrix of coordinates
-%  Ue=zeros(Dne,1);                       % init list of nodal values
-%  connec=elements(e).nodes;              % gets element connectivty 
-%  pos=1;              
-%  for n=1:ne
-%   node=connec(n);   
-%   Xe(n,:)=nodes(node).coor;             % fills with coordinates of node n
-%   Ue(pos:pos+ndof-1)=nodes(node).U;     % fills nodal values of node n
-%   pos=pos+ndof;
-%  end
-%  mat=elements(e).mat;                   % gets element material
-%  Sg=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % at gauss points
-%  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
-%  Sn(connec,:)=Sn(connec,:)+Sne;         % adds to connec nodes
-%  counter(connec)=counter(connec)+1;
-% end   
-% for icomp=1:Sdim
-%  Sn(:,icomp)=Sn(:,icomp)./counter;      % naive average of stresses
-% end
+Sdim=La(analysis.type).Sdim; 
+Sn=zeros(analysis.NN,Sdim);             % initializes output matrix
+counter=zeros(analysis.NN,1);           % initializes counter list
+for e=1:analysis.NE,                    % computes nodal stresses
+
+%-----------------------------------------------------------------------------------------
+ perc=20*floor(5*e/analysis.NE);
+ if perc~=percold,
+  percold=perc;
+  disp(['Post proc: ' num2str(percold) '%'])
+ end
+%-----------------------------------------------------------------------------------------
+
+ type=elements(e).type;
+ ne=Le(type).ne;                        % number of nodes in element
+ Etag=Le(type).tag;
+ Dne=ndof*ne;                           % number of nodal val in element
+ Xe=zeros(ne,DG);                       % init matrix of coordinates
+ Ue=zeros(Dne,1);                       % init list of nodal values
+ connec=elements(e).nodes;              % gets element connectivty 
+ pos=1;              
+ for n=1:ne
+  node=connec(n);   
+  Xe(n,:)=nodes(node).coor;             % fills with coordinates of node n
+  Ue(pos:pos+ndof-1)=nodes(node).U;     % fills nodal values of node n
+  pos=pos+ndof;
+ end
+ mat=elements(e).mat;                   % gets element material
+ Sg=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % at gauss points
+ Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
+ Sn(connec,:)=Sn(connec,:)+Sne;         % adds to connec nodes
+ counter(connec)=counter(connec)+1;
+end   
+for icomp=1:Sdim
+ Sn(:,icomp)=Sn(:,icomp)./counter;      % naive average of stresses
+end
 % %-----------------------------------------------------------------------------------------
 % disp('Launching GMSH')
 % disp('...........................')

@@ -14,9 +14,9 @@ P0 = [0.51 0.51 0.51 0.51];
 % normalization 
 P = P./Pscale;
 
-alpha = 1e-2;            % dimensionless regularization paramete
+alpha = 1e-5;            % dimensionless regularization paramete
 
- % Plate_shear(P);
+% Plate_shear(P);
  
 [U, K, dKdp, dUdp1] = Plate_shear(P); % observed data without noise
 dUdp1_x = dUdp1(1:2:end,:);
@@ -32,7 +32,7 @@ U_noise = mu + randn*sigma;
 U_n = U + U_noise;
 
 % calculate the derivates of U with respect to P
-%  P = [0.8 0.2 0.6 0.6];
+% P = [0.8 0.2 0.6 0.6];
 dUdp = zeros(size(U,1),length(P));
 for i = 1:length(P)
     dpi = 1e-3;     % add a small perturbation at one component of P each time
@@ -45,11 +45,9 @@ end
 % L = randperm(size(U,1),100); % choose 100 measurement points randomly
 L = [33];
 % L1 = 1:100;
-L1 = [20 31 58 76];
-Q0 = dUdp'*dUdp;
-% Q = dUdp(L,:)'*dUdp(L,:) + dUdp(L+size(U,1),:)'*dUdp(L+size(U,1),:); % Fisher information matrix
-% Q1 = dUdp(L1,:)'*dUdp(L1,:) + dUdp(L1+size(U,1),:)'*dUdp(L1+size(U,1),:); 
-Q = dUdp(L,:)'*dUdp(L,:);
+L1 = [20 31 58 76]; % L indicate the measured dofs.
+Q0 = dUdp'*dUdp;    % Fisher information matrix based on all dofs of the finite element mesh
+Q = dUdp(L,:)'*dUdp(L,:); % Fisher information matrix based on measured dofs.
 Q1 = dUdp(L1,:)'*dUdp(L1,:);
 b = trace(Q);   
 b1 = trace(Q1);
@@ -61,10 +59,10 @@ N0 = 10;
 % L_global = FSSP_FIM(L0,N0,U,dUdp);
 
 
-L_E1 = FSSP_FIM_Tr(N0,dUdp(:,1));
-% L_E2 = FSSP_FIM_Tr(N0,dUdp(:,2));
-% L_nu12 = FSSP_FIM_Tr(N0,dUdp(:,3));
-% L_G12 = FSSP_FIM_Tr(N0,dUdp(:,4));
+L_E1_tr = FSSP_FIM_Tr(N0,dUdp(:,1));
+L_E2_tr = FSSP_FIM_Tr(N0,dUdp(:,2));
+L_nu12_tr = FSSP_FIM_Tr(N0,dUdp(:,3));
+L_G12_tr = FSSP_FIM_Tr(N0,dUdp(:,4));
 
 % normalize the dUdp
 dUdp_n = normalize(dUdp);
@@ -77,9 +75,9 @@ L_global = FSSP_FIM_Tr(N0,dUdp);
 %----------------------------------------
 % using det(Q)
 L_E1_det = FSSP_FIM_det(N0,dUdp(:,1));
-L_E2 = FSSP_FIM_det(N0,dUdp(:,2));
-L_nu12 = FSSP_FIM_det(N0,dUdp(:,3));
-L_G12 = FSSP_FIM_det(N0,dUdp(:,4));
+L_E2_det = FSSP_FIM_det(N0,dUdp(:,2));
+L_nu12_det = FSSP_FIM_det(N0,dUdp(:,3));
+L_G12_det = FSSP_FIM_det(N0,dUdp(:,4));
 L_global_det = FSSP_FIM_det(N0,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
@@ -122,9 +120,11 @@ dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parameter identification 
 % Pini = [100e3 8e3 0.4 3e3];
-Pini = [0.4 0.4];
-% Pini = [0.4 0.4 0.4 0.4];
+% Pini = [0.4 0.4]; % isotropic case
+Pini = [0.4 0.4 0.4 0.4]; % orthotropic case
 
+L = L_global_det;
+Uobs = U_n(L,:);
 [Psol,fval]=fminsearch(@(P) misfit(P,P0,alpha,Uobs,L),Pini,optimset('Display','iter' ...
                 ,'TolFun',1e-6,'GradObj','off'))
 
