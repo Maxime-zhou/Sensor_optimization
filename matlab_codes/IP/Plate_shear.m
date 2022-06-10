@@ -1,7 +1,7 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
-function [U, K, dKdp, dUdp] = Plate_shear(P)
+function [U, K, dKdp, dUdp,coor, element] = Plate_shear(P)
 % function [analysis, nodes, elements, dUdp] = Plate_shear(P)
 addpath(genpath('../'))                    % adds to path all subdirectories 
 % clear all                                % clear all vairables 
@@ -227,18 +227,24 @@ coor = zeros(NN,ndof);
 for i = 1:analysis.NN
     coor(i,:) = nodes(i).coor;
 end
+
+element = zeros(analysis.NE,4);
+for i = 1:analysis.NE
+    element(i,:) = elements(i).nodes;
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Sdim=La(analysis.type).Sdim; 
 Sn=zeros(analysis.NN,Sdim);             % initializes output matrix
+Dn=zeros(analysis.NN,Sdim); 
 counter=zeros(analysis.NN,1);           % initializes counter list
 for e=1:analysis.NE,                    % computes nodal stresses
 
 %-----------------------------------------------------------------------------------------
- perc=20*floor(5*e/analysis.NE);
- if perc~=percold,
-  percold=perc;
-  disp(['Post proc: ' num2str(percold) '%'])
- end
+%  perc=20*floor(5*e/analysis.NE);
+%  if perc~=percold,
+%   percold=perc;
+%   disp(['Post proc: ' num2str(percold) '%'])
+%  end
 %-----------------------------------------------------------------------------------------
 
  type=elements(e).type;
@@ -256,13 +262,20 @@ for e=1:analysis.NE,                    % computes nodal stresses
   pos=pos+ndof;
  end
  mat=elements(e).mat;                   % gets element material
- Sg=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % at gauss points
+ [Sg,Dg]=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % stress and strain at gauss points
  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
+ Dne=eval([Etag 'g2n(Dg)']);
+
  Sn(connec,:)=Sn(connec,:)+Sne;         % adds to connec nodes
+
+ Dn(connec,:)=Dn(connec,:)+Dne;
  counter(connec)=counter(connec)+1;
 end   
 for icomp=1:Sdim
  Sn(:,icomp)=Sn(:,icomp)./counter;      % naive average of stresses
+
+ % for strian
+ Dn(:,icomp)=Dn(:,icomp)./counter;
 end
 % %-----------------------------------------------------------------------------------------
 % disp('Launching GMSH')

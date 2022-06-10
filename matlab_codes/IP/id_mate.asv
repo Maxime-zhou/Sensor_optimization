@@ -85,10 +85,9 @@ L_global_det = FSSP_FIM_det(N0,dUdp);
 IS = find(coor(:,1)==0); % index of start node, at the right boundary 
 Lmax = 2;
 L0 = IS(randperm(length(IS),1));
-[row,~]=find(element == L0);
+[row,~]=find(element ==L0);
 
-nodes_nb = unique(element(row,:)); % neiborbood nodes
-dDdp = zeros()
+nodes = element(row);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
 

@@ -1,27 +1,23 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-% FILE: genlin.m
-% Linear analyses: scalar, vector; 2D, axi, 3D 
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                                                                                                                                                                                                                                                                                                                           !!!!!!!!!!!!!!!!!!
-
-addpath(genpath('.'))                    % adds to path all subdirectories 
-clear all                                % clear all vairables 
+ 
+function [Dn, K, dKdp, dUdp] = Plate_shear(P)
+% function [analysis, nodes, elements, dUdp] = Plate_shear(P)
+addpath(genpath('../'))                    % adds to path all subdirectories 
+% clear all                                % clear all vairables 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % preprocessor phase: reads input from files
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-[name,pname]=uigetfile('input/*.m',...   % gets name of input file
-                       'Choose input file');
-
+% name = 'plate_shear.m';
+name = 'plate_shear_orth.m';
 %-----------------------------------------------------------------------------------------
-disp('...........................')
-disp(['Reading input file: ' name])
+% disp('...........................')
+% disp(['Reading input file: ' name])
 %-----------------------------------------------------------------------------------------
                    
-eval(['run input/',name]);               % analysis file is read at once  
-
+eval(['run ../input/',name]);               % analysis file is read at once  
+material = P;
 La(1)=struct('tag','2D_therm_','ndof',1,'DG',2,'Sdim',2);  % thermal 2D
 La(2)=struct('tag','AX_therm_','ndof',1,'DG',2,'Sdim',2);  % thermal AXI
 La(3)=struct('tag','3D_therm_','ndof',1,'DG',3,'Sdim',3);  % thermal 3D
@@ -29,10 +25,10 @@ La(4)=struct('tag','2A_solid_','ndof',2,'DG',2,'Sdim',3);  % solid plane-strain
 La(5)=struct('tag','2S_solid_','ndof',2,'DG',2,'Sdim',3);  % solid plane-stress
 La(6)=struct('tag','AX_solid_','ndof',2,'DG',2,'Sdim',4);  % solid AXI
 La(7)=struct('tag','3D_solid_','ndof',3,'DG',3,'Sdim',6);  % solid 3D
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd, for orthotropic material 
 La(8)= struct('tag','2S_solid_orth_','ndof',2,'DG',2,'Sdim',3);  % orthotropic solid plane-stress
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Atag=La(analysis.type).tag;
 ndof=La(analysis.type).ndof; 
 DG=La(analysis.type).DG; 
@@ -88,24 +84,29 @@ ncoeffs=ndof^2*sum(nm);                      % sum of all the terms in nm
 
 K=spalloc(analysis.neq,analysis.neq,ncoeffs);% allocates sparse matrix
 F=zeros(analysis.neq,1);                     % allocates rhs vector
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% add by zzd
+dKdp=zeros(analysis.neq,analysis.neq,length(P));
+% dJdU=zeros(analysis.neq,1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % assemblage phase: system matrix and nodal forces due to imposed displ.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %-----------------------------------------------------------------------------------------
-disp(['Number of elements: ' num2str(analysis.NE)])
+% disp(['Number of elements: ' num2str(analysis.NE)])
 percold=0;
 %-----------------------------------------------------------------------------------------
 
 for e=1:analysis.NE,                         % stiffness matrix assemblage
 	
 %-----------------------------------------------------------------------------------------
- perc=20*floor(5*e/analysis.NE);
- if perc~=percold,
-  percold=perc;
-  disp(['Assembling: ' num2str(percold) '%'])
- end
+%  perc=20*floor(5*e/analysis.NE);
+%  if perc~=percold,
+%   percold=perc;
+%   disp(['Assembling: ' num2str(percold) '%'])
+%  end
 %-----------------------------------------------------------------------------------------
 
  type=elements(e).type;
@@ -124,10 +125,19 @@ for e=1:analysis.NE,                         % stiffness matrix assemblage
   Ue(pos:pos+ndof-1)=nodes(node).U;
   pos=pos+ndof;
  end
- Ke=eval([Etag Atag 'Ke(Xe,material(mat,:))']);       
+ Ke=eval([Etag Atag 'Ke(Xe,material(mat,:))']);  
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ % add by zzd
+ dKedp=eval([Etag Atag 'dKedp(Xe,material(mat,:))']);
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  Le0=find(Ge>0);                            % local numbering of unknowns
  Ie=Ge(Le0);                                % global numbering 
  K(Ie,Ie)=K(Ie,Ie)+Ke(Le0,Le0);             % matrix assemblage
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ for i=1:length(P)
+    dKdp(Ie,Ie,i)=dKdp(Ie,Ie,i)+dKedp(Le0,Le0,i);
+ end
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  LeD=find(Ge<0);                            % local numbering of prescr. b.c 
  F(Ie)=F(Ie)-Ke(Le0,LeD)*Ue(LeD);           % assemblage of rhs
 end
@@ -163,18 +173,30 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %-----------------------------------------------------------------------------------------
-disp('Solving system')
+% disp('Solving system')
 %-----------------------------------------------------------------------------------------
 
 U=K\F;                                       % solution of linear system
-clear K F                                    % clears memory
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% add by zzd
+dUdp = zeros(analysis.NN*ndof,length(P));
+% dUdp_temp = zeros(analysis.NN*ndof,length(P));
+for i = 1:length(P)
+    dUdp_temp(:,i) = -K\(dKdp(:,:,i)*U);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% clear K F                                    % clears memory
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Post-processing phase: computation of nodal stresses via extrapolation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %-----------------------------------------------------------------------------------------
-disp('Post processing data')
+% disp('Post processing data')
 %-----------------------------------------------------------------------------------------
 
 for n=1:analysis.NN             % loop over the nodes
@@ -182,21 +204,43 @@ for n=1:analysis.NN             % loop over the nodes
   dof=nodes(n).dof(dir);        % gets the global unknown num.
   if dof>0                      % if it is unknwon
    nodes(n).U(dir)=U(dof);      % fills nodal value from sol vector
+
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   if dir<2
+      dUdp(n*ndof-1,:) = dUdp_temp(dof,:);
+   else
+      dUdp(n*ndof,:) = dUdp_temp(dof,:);
+   end
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   end 
  end
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% add by zzd
+U = zeros(NN*ndof,1);
+for i = 1:analysis.NN
+    U(ndof*i-1) = nodes(i).U(1);
+    U(ndof*i) = nodes(i).U(2);
+end
 
+coor = zeros(NN,ndof);
+for i = 1:analysis.NN
+    coor(i,:) = nodes(i).coor;
+element = z
+for i = 1:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Sdim=La(analysis.type).Sdim; 
 Sn=zeros(analysis.NN,Sdim);             % initializes output matrix
+Dn=zeros(analysis.NN,Sdim); 
 counter=zeros(analysis.NN,1);           % initializes counter list
 for e=1:analysis.NE,                    % computes nodal stresses
 
 %-----------------------------------------------------------------------------------------
- perc=20*floor(5*e/analysis.NE);
- if perc~=percold,
-  percold=perc;
-  disp(['Post proc: ' num2str(percold) '%'])
- end
+%  perc=20*floor(5*e/analysis.NE);
+%  if perc~=percold,
+%   percold=perc;
+%   disp(['Post proc: ' num2str(percold) '%'])
+%  end
 %-----------------------------------------------------------------------------------------
 
  type=elements(e).type;
@@ -214,26 +258,26 @@ for e=1:analysis.NE,                    % computes nodal stresses
   pos=pos+ndof;
  end
  mat=elements(e).mat;                   % gets element material
-%  Sg=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % at gauss points
- [Sg,Dg]=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % at gauss points
-%  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
+ [Sg,Dg]=eval([Etag Atag 'Sg(Xe,material(mat,:),Ue)']);  % stress and strain at gauss points
  Sne=eval([Etag 'g2n(Sg)']);            % extrapolates at nodes
-
- Dne=eval([Etag 'g2n(Sg)']);
+ Dne=eval([Etag 'g2n(Dg)']);
 
  Sn(connec,:)=Sn(connec,:)+Sne;         % adds to connec nodes
+
  Dn(connec,:)=Dn(connec,:)+Dne;
  counter(connec)=counter(connec)+1;
 end   
 for icomp=1:Sdim
  Sn(:,icomp)=Sn(:,icomp)./counter;      % naive average of stresses
+
+ % for strian
+ Dn(:,icomp)=Dn(:,icomp)./counter;
 end
-
-%-----------------------------------------------------------------------------------------
-disp('Launching GMSH')
-disp('...........................')
-%-----------------------------------------------------------------------------------------
-
-genlin_postgmsh
+% %-----------------------------------------------------------------------------------------
+% disp('Launching GMSH')
+% disp('...........................')
+% %-----------------------------------------------------------------------------------------
+% 
+% genlin_postgmsh
 
 
