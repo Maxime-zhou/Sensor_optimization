@@ -18,7 +18,7 @@ alpha = 1e-5;            % dimensionless regularization paramete
 
 % Plate_shear(P);
  
-[U,K, dKdp, dUdp1, coor, element] = Plate_shear(P); % observed data without noise, Dn is the strain
+[U, K, dKdp, dUdp1, coor, element] = Plate_shear(P); % observed data without noise, Dn is the strain
 dUdp1_x = dUdp1(1:2:end,:);
 
 % mu = 0.1*mean(abs(U)); % mean value of noise
@@ -87,7 +87,7 @@ Lmax = 2;
 L0 = IS(randperm(length(IS),1));
 [row,~]=find(element == L0);
 
-nodes_nb = unique(element(row,:)); % neiborbood nodes
+nodes_nb = unique(element(row,:)); % neighborhood nodes
 dDdp = zeros()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
