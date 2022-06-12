@@ -83,12 +83,36 @@ L_global_det = FSSP_FIM_det(N0,dUdp);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using greedy algorithm to find a optimal fiber placement
 IS = find(coor(:,1)==0); % index of start node, at the right boundary 
+L_fiber = 0;
 Lmax = 2;
-L0 = IS(randperm(length(IS),1));
-[row,~]=find(element == L0);
+L = [];
+% L0 = IS(randperm(length(IS),1));
+L0 = 4;
+L = [L,L0];
+while (L_fiber<Lmax)
+    [row,~]=find(element == L(end));
 
-nodes_nb = unique(element(row,:)); % neighborhood nodes
-dDdp = zeros()
+    nodes_nb = unique(element(row,:)); % neighborhood nodes
+%     dDdp = zeros(length(nodes_nb),1);
+    Q_tr = zeros(length(nodes_nb),1);
+    for i = 1:length(nodes_nb)
+        if (ismember(nodes_nb(i),L))
+%             dDdp(i)=0;
+            Q_tr(i)=0;
+        else
+            dx = coor(nodes_nb(i),1)-coor(L(end),1);
+            dy = coor(nodes_nb(i),2)-coor(L(end),2);
+            dL = sqrt(dx^2+dy^2);
+            dDdp = ( (dUdp(2*nodes_nb(i)-1,:) - dUdp(2*L(end)-1,:)) * (dx/dL) + ...
+                      (dUdp(2*nodes_nb(i),:) - dUdp(2*L(end),:)) * (dy/dL) ) / dL;
+            Q_tr(i) =trace(dDdp'*dDdp);
+        end
+    end
+%     [~,ind] = max(dDdp);
+    [~,ind]=max(Q_tr);
+    L = [L,nodes_nb(ind)];
+    L_fiber = L_fiber+dL;
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % a = 1;
 
