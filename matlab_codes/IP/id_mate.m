@@ -20,6 +20,7 @@ alpha = 1e-5;            % dimensionless regularization paramete
  
 [U, K, dKdp, dUdp1, coor, element] = Plate_shear(P); % observed data without noise, Dn is the strain
 dUdp1_x = dUdp1(1:2:end,:);
+dUdp1_y = dUdp1(2:2:end,:);
 
 % mu = 0.1*mean(abs(U)); % mean value of noise
 % sigma = 0.2*mu; 
@@ -43,6 +44,32 @@ for i = 1:length(P)
 end
 % dUdp_x = dUdp(1:size(U,1),:);
 % L = randperm(size(U,1),100); % choose 100 measurement points randomly
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% plot dUdp
+for j = 1:length(P)
+    figure
+    for i=1:size(element,1)
+    x = coor(element(i,:),1);
+    y = coor(element(i,:),2);
+    dUdpx = dUdp1_x(element(i,:),j);
+    patch(x,y,abs(dUdpx));
+    end
+end
+
+for j = 1:length(P)
+    figure
+    for i=1:size(element,1)
+    x = coor(element(i,:),1);
+    y = coor(element(i,:),2);
+    dUdpy = dUdp1_y(element(i,:),j);
+    patch(x,y,abs(dUdpx));
+    end
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
 L = [33];
 % L1 = 1:100;
 L1 = [20 31 58 76]; % L indicate the measured dofs.
