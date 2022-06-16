@@ -150,9 +150,7 @@ intcon = [1,2];  % constrian design variables are integer
 IS = find(coor(:,1)==0);
 Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 fun = @(L) Q_fiber(Pos_ini,L,dUdp,coor);
-
-L0 = ones(1,10);  % initial angles
-Q_fiber(Pos_ini,L0,dUdp,coor);
+L0 = ones()
 ga(fun,10,[],[],[],[],1,8,[],intcon)
 
 

@@ -23,8 +23,8 @@ for i = 1:length(L)
     end
 %     P_ind(i+1) = find(coor(:,1)==P_coor(i+1,1) && coor(:,2)==P_coor(i+1,2));
 %     P_ind = coor(:,1)==P_coor(i+1,1) && coor(:,2)==P_coor(i+1,2);
-    e = 1e-6;
-    P_ind_temp =  find(abs(coor(:,1)-P_coor(i+1,1))<e);
+    
+    P_ind_temp =  find(coor(:,1)==P_coor(i+1,1));
     Ind =  coor(P_ind_temp,2)==P_coor(i+1,2);
     P_ind(i+1) = P_ind_temp(Ind);
 end
