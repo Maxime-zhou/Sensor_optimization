@@ -17,7 +17,7 @@ P = P./Pscale;
 alpha = 1e-5;            % dimensionless regularization paramete
 
 % Plate_shear(P);
- 
+
 [U, K, dKdp, dUdp1, coor, element] = Plate_shear(P); % observed data without noise, Dn is the strain
 dUdp1_x = dUdp1(1:2:end,:);
 dUdp1_y = dUdp1(2:2:end,:);
@@ -42,6 +42,7 @@ for i = 1:length(P)
     dp(i) = dpi;
     dUdp(:,i) = (Plate_shear(P+dp) - Plate_shear(P))/dpi;
 end
+
 % dUdp_x = dUdp(1:size(U,1),:);
 % L = randperm(size(U,1),100); % choose 100 measurement points randomly
 
@@ -151,8 +152,8 @@ IS = find(coor(:,1)==0);
 Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 fun = @(L) Q_fiber(Pos_ini,L,dUdp,coor);
 
-L0 = ones(1,10);  % initial angles
-Q_fiber(Pos_ini,L0,dUdp,coor);
+L0 = 2*ones(1,10);  % initial angles
+Q_f = Q_fiber(Pos_ini,L0,dUdp,coor);
 ga(fun,10,[],[],[],[],1,8,[],intcon)
 
 
