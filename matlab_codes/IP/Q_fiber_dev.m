@@ -72,14 +72,17 @@ dDdp = zeros(length(L),size(dUdp,2));
 
 % IS = find(~P_ind);
 % if (~IS==[])
-if(~all(P_ind))  % if any element of P_ind equal to zero, Q is zero
+P_ind = unique(P_ind);
+if (length(P_ind)<length(L)+1)
+    Q = 0;
+elseif(~all(P_ind))  % if any element of P_ind equal to zero, Q is zero
     Q = 0;
 else
     for i=1:length(L)
     dL = sqrt((P_coor(i+1,1)-P_coor(i,1))^2 + (P_coor(i+1,2)-P_coor(i,2))^2);
     
-    dDdp(i,:) = ( (dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:)) * cos(theta(i)) + ...
-                      (dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:)) * sin(theta(i)) ) / dL;
+    dDdp(i,:) = ( ( dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:) ) * cos(theta(i) ) + ...
+                      ( dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:) ) * sin(theta(i) ) ) / dL;
     end
 %     Q = det(dDdp'*dDdp);
     Q = trace(dDdp'*dDdp);
