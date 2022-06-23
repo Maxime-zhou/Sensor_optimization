@@ -59,7 +59,7 @@ else
     dDdp(i,:) = ( (dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:)) * cos(theta(L(i))) + ...
                       (dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:)) * sin(theta(L(i))) ) / dL;
     end
-%     Q = det(dDdp'*dDdp);
-    Q = trace(dDdp'*dDdp);
+    Q = det(dDdp'*dDdp);
+%     Q = trace(dDdp'*dDdp);
 end
 

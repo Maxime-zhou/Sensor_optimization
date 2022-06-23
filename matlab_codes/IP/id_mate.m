@@ -152,10 +152,10 @@ end
 % Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 Pos_ini = 33;
 
-fun = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
+fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 
 
-L0 = 2*ones(1,3);  % initial angles
+L0 =  ones(1,6);  % initial angles
 L2 = [7];
 Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
@@ -164,7 +164,7 @@ Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
-options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-6, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
+options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
 [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)

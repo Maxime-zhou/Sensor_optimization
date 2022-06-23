@@ -39,16 +39,19 @@ for i = 1:length(L)
         case 5
             P_coor(i+1,1) = P_coor(i,1)-dx;
             P_coor(i+1,2) = P_coor(i,2);
-            
+            theta(i) = pi;
         case 6 
             P_coor(i+1,1) = P_coor(i,1)-dx;
             P_coor(i+1,2) = P_coor(i,2)-dy;
+            theta(i) = pi + atan(dy/dx);
         case 7
             P_coor(i+1,1) = P_coor(i,1);
             P_coor(i+1,2) = P_coor(i,2)-dy;
+            theta(i) = 3*pi/2;
         case 8
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2)-dy;
+            theta(i) = 2*pi-atan(dy/dx);
     end
 
     if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
@@ -69,14 +72,17 @@ dDdp = zeros(length(L),size(dUdp,2));
 
 % IS = find(~P_ind);
 % if (~IS==[])
-if(~all(P_ind))  % if any element of P_ind equal to zero, Q is zero
+P_ind = unique(P_ind);
+if (length(P_ind)<length(L)+1)
+    Q = 0;
+elseif(~all(P_ind))  % if any element of P_ind equal to zero, Q is zero
     Q = 0;
 else
     for i=1:length(L)
     dL = sqrt((P_coor(i+1,1)-P_coor(i,1))^2 + (P_coor(i+1,2)-P_coor(i,2))^2);
     
-    dDdp(i,:) = ( (dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:)) * cos(theta(i)) + ...
-                      (dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:)) * sin(theta(i)) ) / dL;
+    dDdp(i,:) = ( ( dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:) ) * cos(theta(i) ) + ...
+                      ( dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:) ) * sin(theta(i) ) ) / dL;
     end
 %     Q = det(dDdp'*dDdp);
     Q = trace(dDdp'*dDdp);
