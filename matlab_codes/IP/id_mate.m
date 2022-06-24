@@ -71,7 +71,7 @@ end
 % end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 L = [33];
 % L1 = 1:100;
 L1 = [20 31 58 76]; % L indicate the measured dofs.
@@ -101,13 +101,28 @@ L_global_n = FSSP_FIM_Tr(N0,dUdp_n);
 % without normalization
 L_global = FSSP_FIM_Tr(N0,dUdp);
 
-%----------------------------------------
+%--------------------------------------------------------------------
 % using det(Q)
 L_E1_det = FSSP_FIM_det(N0,dUdp(:,1));
 L_E2_det = FSSP_FIM_det(N0,dUdp(:,2));
 L_nu12_det = FSSP_FIM_det(N0,dUdp(:,3));
 L_G12_det = FSSP_FIM_det(N0,dUdp(:,4));
 L_global_det = FSSP_FIM_det(N0,dUdp);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using numerical method to compute the derivative of strain
+[Dn, coor2, element2] = Plate_shear_Dn(P);
+dDdp = zeros(size(Dn,1),size(Dn,2),length(P));
+ 
+for i = 1:length(P)
+
+    dpi = 1e-3;     % add a small perturbation at one component of P each time
+    dp = zeros(1,length(P));
+    dp(i) = dpi;
+    dDdp(:,:,i) = ( Plate_shear_Dn(P+dpi) - Dn)/dpi; 
+
+end
+ 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using greedy algorithm to find a optimal fiber placement
@@ -155,7 +170,7 @@ Pos_ini = 33;
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 
 
-L0 =  ones(1,6);  % initial angles
+L0 =  ones(1,20);  % initial angles
 L2 = [7];
 Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
