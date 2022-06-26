@@ -1,6 +1,5 @@
 function Q = Q_fiber(Pos_ini,L,dUdp,coor)
 
-% theta = 0:pi/4:2*pi; % theta contain 8 angles corresponding to 8 orientation.
 Lb = min(coor(:,1)); % left boundary coor. of the domain
 Rb = max(coor(:,1)); % right boundary of the domain
 Bb = min(coor(:,2)); % bottom boundary of the domain 

@@ -50,25 +50,38 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot dUdp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% for j = 1:length(P)
-%     figure
-%     for i=1:size(element,1)
-%     x = coor(element(i,:),1);
-%     y = coor(element(i,:),2);
-%     dUdpx = dUdp1_x(element(i,:),j);
-%     patch(x,y,abs(dUdpx));
-%     end
-% end
-% 
-% for j = 1:length(P)
-%     figure
-%     for i=1:size(element,1)
-%     x = coor(element(i,:),1);
-%     y = coor(element(i,:),2);
-%     dUdpy = dUdp1_y(element(i,:),j);
-%     patch(x,y,abs(dUdpx));
-%     end
-% end
+for j = 1:length(P)
+    subplot(2,2,j)
+    for i=1:size(element,1)
+      x = coor(element(i,:),1);
+      y = coor(element(i,:),2);
+      dUdpx = dUdp1_x(element(i,:),j);
+      patch(x,y,abs(dUdpx));
+      hold on
+      title(['Sensitivity contour ' num2str(j)]);
+      xlabel('X'); ylabel('Y'); 
+      colorbar
+      set (gca,'DataAspectRatio', [1 1 1])
+    end   
+end
+hold off
+
+
+% figure    
+for j = 1:length(P)
+    subplot(2,2,j)
+    for i=1:size(element,1)
+      x = coor(element(i,:),1);
+      y = coor(element(i,:),2);
+      dUdpy = dUdp1_y(element(i,:),j);
+      patch(x,y,abs(dUdpy));
+      hold on
+      title(['Sensitivity contour ' num2str(j)]);
+      xlabel('X'); ylabel('Y'); 
+      colorbar
+      set (gca,'DataAspectRatio', [1 1 1])
+    end
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%

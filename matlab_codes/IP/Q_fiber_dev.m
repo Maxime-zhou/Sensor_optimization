@@ -1,6 +1,5 @@
 function Q = Q_fiber_dev(Pos_ini,L,dUdp,coor)
 
-% theta = 0:pi/4:2*pi; % theta contain 8 angles corresponding to 8 orientation.
 Lb = min(coor(:,1)); % left boundary coor. of the domain
 Rb = max(coor(:,1)); % right boundary of the domain
 Bb = min(coor(:,2)); % bottom boundary of the domain 
@@ -9,7 +8,6 @@ Tb = max(coor(:,2)); % top boundary of the domain
 dx = coor(5,1) - coor(1,1); % mesh size in x direction 
 dy = coor(44,2) - coor(1,2); % mesh size in y direction
 
-% theta contain 8 angles corresponding to 8 orientation.
 
 P_coor = zeros(length(L)+1,2); % initialize the coordinates of the connect points
 P_ind = zeros(length(L)+1,1);  % initialize the indices of the coor.
@@ -23,7 +21,7 @@ for i = 1:length(L)
         case 1 
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2);
-            theta(i) = 0;
+            theta(i) = 0;  % the orientation of the fiber at this point
         case 2 
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2)+dy;

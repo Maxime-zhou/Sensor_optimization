@@ -50,23 +50,37 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot dUdp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% figure
 % for j = 1:length(P)
-%     figure
+%     subplot(2,2,j)
 %     for i=1:size(element,1)
-%     x = coor(element(i,:),1);
-%     y = coor(element(i,:),2);
-%     dUdpx = dUdp1_x(element(i,:),j);
-%     patch(x,y,abs(dUdpx));
-%     end
+%       x = coor(element(i,:),1);
+%       y = coor(element(i,:),2);
+%       dUdpx = dUdp1_x(element(i,:),j);
+%       patch(x,y,abs(dUdpx));
+%       hold on
+%       subtitle(['Sensitivity contour ' num2str(j)]);
+%       xlabel('X'); ylabel('Y'); 
+%       colorbar
+%       set (gca,'DataAspectRatio', [1 1 1])
+%     end   
 % end
 % 
+% 
+% 
+% figure    
 % for j = 1:length(P)
-%     figure
+%     subplot(2,2,j)
 %     for i=1:size(element,1)
-%     x = coor(element(i,:),1);
-%     y = coor(element(i,:),2);
-%     dUdpy = dUdp1_y(element(i,:),j);
-%     patch(x,y,abs(dUdpx));
+%       x = coor(element(i,:),1);
+%       y = coor(element(i,:),2);
+%       dUdpy = dUdp1_y(element(i,:),j);
+%       patch(x,y,abs(dUdpy));
+%       hold on
+%       title(['Sensitivity contour ' num2str(j)]);
+%       xlabel('X'); ylabel('Y'); 
+%       colorbar
+%       set (gca,'DataAspectRatio', [1 1 1])
 %     end
 % end
 
@@ -155,9 +169,9 @@ Pos_ini = 33;
 fun = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
 
 
-L0 = 2*ones(1,3);  % initial angles
-L2 = [7];
-Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
+L0 = ones(1,5);  % initial angles
+L2 = [3,1,3,2,3,2];
+Q_f = -Q_fiber(Pos_ini,L2,dUdp,coor);
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 
