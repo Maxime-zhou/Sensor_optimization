@@ -85,7 +85,7 @@ end
 % end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 L = [33];
 % L1 = 1:100;
 L1 = [20 31 58 76]; % L indicate the measured dofs.
@@ -115,13 +115,28 @@ L_global_n = FSSP_FIM_Tr(N0,dUdp_n);
 % without normalization
 L_global = FSSP_FIM_Tr(N0,dUdp);
 
-%----------------------------------------
+%--------------------------------------------------------------------
 % using det(Q)
 L_E1_det = FSSP_FIM_det(N0,dUdp(:,1));
 L_E2_det = FSSP_FIM_det(N0,dUdp(:,2));
 L_nu12_det = FSSP_FIM_det(N0,dUdp(:,3));
 L_G12_det = FSSP_FIM_det(N0,dUdp(:,4));
 L_global_det = FSSP_FIM_det(N0,dUdp);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using numerical method to compute the derivative of strain
+[Dn, coor2, element2] = Plate_shear_Dn(P);
+dDdp = zeros(size(Dn,1),size(Dn,2),length(P));
+ 
+for i = 1:length(P)
+
+    dpi = 1e-3;     % add a small perturbation at one component of P each time
+    dp = zeros(1,length(P));
+    dp(i) = dpi;
+    dDdp(:,:,i) = ( Plate_shear_Dn(P+dpi) - Dn)/dpi; 
+
+end
+ 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using greedy algorithm to find a optimal fiber placement
@@ -166,19 +181,20 @@ end
 % Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 Pos_ini = 33;
 
-fun = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
+fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 
-
+ 
 L0 = ones(1,5);  % initial angles
 L2 = [3,1,3,2,3,2];
 Q_f = -Q_fiber(Pos_ini,L2,dUdp,coor);
+ 
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
-options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-6, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
+options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
 [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)
