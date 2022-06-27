@@ -1,4 +1,5 @@
-file='MyGeometry_rect_coarse.msh';
+file ='MyGeometry_rect_coarse.msh';
+% file = 'MyGeometry_rect_fine.msh';
 
 % ANALYSIS TYPE
 % analysis.type = 5;
