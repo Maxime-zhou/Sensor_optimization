@@ -7,7 +7,7 @@ Tb = max(coor(:,2)); % top boundary of the domain
 
 dx = coor(5,1) - coor(1,1); % mesh size in x direction 
 dy = coor(44,2) - coor(1,2); % mesh size in y direction
-a = atan(dx/dy);
+a = atan(dy/dx);
 
 theta = [0, a, pi/2, pi-a, pi, pi+a, 3*pi/2, 2*pi-a];
 % theta contain 8 angles corresponding to 8 orientation.
@@ -58,7 +58,7 @@ else
     dDdp(i,:) = ( (dUdp(2*P_ind(i+1)-1,:) - dUdp(2*P_ind(i)-1,:)) * cos(theta(L(i))) + ...
                       (dUdp(2*P_ind(i+1),:) - dUdp(2*P_ind(i),:)) * sin(theta(L(i))) ) / dL;
     end
-    Q = det(dDdp'*dDdp);
-%     Q = trace(dDdp'*dDdp);
+%     Q = det(dDdp'*dDdp);
+    Q = trace(dDdp'*dDdp);
 end
 

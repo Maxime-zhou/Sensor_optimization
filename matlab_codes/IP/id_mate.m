@@ -1,3 +1,4 @@
+
 clear 
 % isotrpic case
 % P = [10 0.3];           % Young and Poisson
@@ -133,7 +134,7 @@ for i = 1:length(P)
     dpi = 1e-3;     % add a small perturbation at one component of P each time
     dp = zeros(1,length(P));
     dp(i) = dpi;
-    dDdp(:,:,i) = ( Plate_shear_Dn(P+dpi) - Dn)/dpi; 
+    dDdp(:,:,i) = ( Plate_shear_Dn(P+dp) - Dn)/dpi; 
 
 end
  
@@ -184,9 +185,9 @@ Pos_ini = 33;
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 
  
-L0 = ones(1,5);  % initial angles
+L0 =7*ones(5);  % initial angles
 L2 = [3,1,3,2,3,2];
-Q_f = -Q_fiber(Pos_ini,L2,dUdp,coor);
+Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
  
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
@@ -194,7 +195,7 @@ Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
-options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
+options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-6, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
 [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)
