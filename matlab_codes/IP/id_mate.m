@@ -183,7 +183,7 @@ end
 Pos_ini = 33;
 
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
-
+fun_dev = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
  
 L0 =7*ones(5);  % initial angles
 L2 = [3,1,3,2,3,2];
@@ -198,7 +198,7 @@ intcon = 1:length(L0);  % constrian design variables are integer
 options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-6, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
-[Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)
+[Lsol,fval] = ga(fun_dev,length(L0),[],[],[],[],lb,ub,[],intcon,options)
 % [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,optimset('Display','iter'))
 
  
@@ -241,7 +241,8 @@ dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+% griddata
+% surf
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parameter identification 
 % Pini = [100e3 8e3 0.4 3e3];
