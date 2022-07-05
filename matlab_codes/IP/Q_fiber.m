@@ -7,7 +7,8 @@ Tb = max(coor(:,2)); % top boundary of the domain
 
 dx = coor(5,1) - coor(1,1); % mesh size in x direction 
 dy = coor(44,2) - coor(1,2); % mesh size in y direction
-a = atan(dy/dx);
+ 
+a = atan(dy/dx);  % angle  
 
 theta = [0, a, pi/2, pi-a, pi, pi+a, 3*pi/2, 2*pi-a];
 % theta contain 8 angles corresponding to 8 orientation.

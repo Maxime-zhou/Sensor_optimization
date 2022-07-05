@@ -1,4 +1,3 @@
-
 clear 
 % isotrpic case
 % P = [10 0.3];           % Young and Poisson
@@ -51,37 +50,24 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % plot dUdp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% figure
 % for j = 1:length(P)
-%     subplot(2,2,j)
+%     figure
 %     for i=1:size(element,1)
-%       x = coor(element(i,:),1);
-%       y = coor(element(i,:),2);
-%       dUdpx = dUdp1_x(element(i,:),j);
-%       patch(x,y,abs(dUdpx));
-%       hold on
-%       subtitle(['Sensitivity contour ' num2str(j)]);
-%       xlabel('X'); ylabel('Y'); 
-%       colorbar
-%       set (gca,'DataAspectRatio', [1 1 1])
-%     end   
+%     x = coor(element(i,:),1);
+%     y = coor(element(i,:),2);
+%     dUdpx = dUdp1_x(element(i,:),j);
+%     patch(x,y,abs(dUdpx));
+%     colorbar
+%     end
 % end
 % 
-% 
-% 
-% figure    
 % for j = 1:length(P)
-%     subplot(2,2,j)
+%     figure
 %     for i=1:size(element,1)
-%       x = coor(element(i,:),1);
-%       y = coor(element(i,:),2);
-%       dUdpy = dUdp1_y(element(i,:),j);
-%       patch(x,y,abs(dUdpy));
-%       hold on
-%       title(['Sensitivity contour ' num2str(j)]);
-%       xlabel('X'); ylabel('Y'); 
-%       colorbar
-%       set (gca,'DataAspectRatio', [1 1 1])
+%     x = coor(element(i,:),1);
+%     y = coor(element(i,:),2);
+%     dUdpy = dUdp1_y(element(i,:),j);
+%     patch(x,y,abs(dUdpy));
 %     end
 % end
 [xq,yq] = meshgrid(0:.01:0.5, 0:.02:1);
@@ -188,22 +174,21 @@ end
 Pos_ini = 33;
 
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
-fun_dev = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
- 
-L0 =7*ones(5);  % initial angles
-L2 = [3,1,3,2,3,2];
+
+
+L0 =  ones(1,20);  % initial angles
+L2 = [7];
 Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
- 
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
-options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-6, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
+options = optimoptions('ga','Display','iter','ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
-[Lsol,fval] = ga(fun_dev,length(L0),[],[],[],[],lb,ub,[],intcon,options)
+[Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)
 % [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,optimset('Display','iter'))
 
  
@@ -246,8 +231,7 @@ dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% griddata
-% surf
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % parameter identification 
 % Pini = [100e3 8e3 0.4 3e3];
