@@ -1,4 +1,4 @@
-file ='MyGeometry_rect_coarse.msh';
+file ='MyGeometry_rect_ddx000625.msh';
 % file = 'MyGeometry_rect_fine.msh';
 
 % ANALYSIS TYPE

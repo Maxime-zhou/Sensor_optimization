@@ -142,7 +142,7 @@ for i = 1:length(P)
 
 end
 
-F = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,:,1));
+% F = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,:,1));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using greedy algorithm to find a optimal fiber placement
@@ -183,16 +183,20 @@ end
 % First try of Genetic algorithm
 % here, the only design valiables are the angles of fiber
 
-% IS = find(coor(:,1)==0);
-% Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
-Pos_ini = 33;
+[U, K, dKdp, dUdp,coor2, element] = Plate_shear(P);
+
+IS = find(coor2(:,1)==0);
+Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
+% Pos_ini = 33;
 
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 fun_dev = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
- 
+
+
+
 L0 =7*ones(5);  % initial angles
 L2 = [3,1,3,2,3,2];
-Q_f = -Q_fiber(Pos_ini,L0,dUdp,coor);
+Q_f = -Q_fiber_2(Pos_ini,L0,dUdp,coor2,0.05,0.00625);
  
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
@@ -239,7 +243,7 @@ end
 L = 1:160;
 Uobs = U_n(L,:);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% conpare with adjoint method 
+% compare with adjoint method 
 % C = nchoosek(L0',4)
 % L0 = randperm(size(U,1),10);
 dFdE = df_misfit(P,P0,alpha,Uobs,L,dUdp1);  % derivative with respect to Young's modulus.
