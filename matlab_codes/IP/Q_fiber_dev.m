@@ -1,5 +1,5 @@
 % replace if else to swith case.
-function Q = Q_fiber_dev(Pos_ini,L,dUdp,coor)
+function [Q,dDdp] = Q_fiber_dev(Pos_ini,L,dUdp,coor)
 
 Lb = min(coor(:,1)); % left boundary coor. of the domain
 Rb = max(coor(:,1)); % right boundary of the domain

@@ -14,7 +14,7 @@ P = P./Pscale;
 % Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 Pos_ini = 418;
 
-L0 =3*ones(1,5);  % initial angles
+L0 =3*ones(5);  % initial angles
 L2 = [3,2,2,3,2];
 
 

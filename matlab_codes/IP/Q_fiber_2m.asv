@@ -10,13 +10,17 @@ Tb = max(coor2(:,2)); % top boundary of the domain
 % dy = coor1(44,2) - coor1(1,2); % mesh size in y direction
 dy = dx;
 ddy = ddx;
+e = 1e-6;
+n = round(dx/ddx);
 
 P_coor = zeros(length(L)+1,2); % initialize the coordinates of the connect points
-P_ind = zeros(dx/ddx+1,1);  % initialize the indices of the coor.
+P_ind =  zeros(length(L)+1,1);
+P_inds = zeros(n+1,1);  % initialize the indices of the coor.
 % theta = zeros(length(L),1);
 
 P_coor(1,:) = coor2(Pos_ini,:);
-P_ind(1) = Pos_ini;      % need to use athe index of fine mesh.
+P_ind(1) = Pos_ini;
+P_inds(1) = Pos_ini;      % need to use athe index of fine mesh.
 
 % if L indicate a overlapping path, set Q = 0
 % for i=1:length(L)-1
@@ -24,7 +28,7 @@ P_ind(1) = Pos_ini;      % need to use athe index of fine mesh.
 %         Q = 0;
 %     end
 % end
-dDdp = zeros(length(L)*dx/ddx);
+dDdp = zeros(length(L)*n,size(dUdp,2));
 
 for i = 1:length(L)
     switch L(i)
@@ -34,40 +38,45 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb) % outside the domain
                 break 
             else 
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)+ddx;
                     P_coor2(j+1,2) = P_coor2(j,2);
-                    e = 1e-6;
+                    
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
                        
                     dL = ddx;
-                    dDdp((i-1)*dx/ddx+j,:) =   ( dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:) ) / dL;  
+                    dDdp((i-1)*n+j,:) =   ( dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:) ) / dL;  
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
+
         case 2 
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2)+dy;
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)+ddx;
                     P_coor2(j+1,2) = P_coor2(j,2)+ddy;
-                    e = 1e-6;
+                     
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = sqrt(ddx^2+ddy^2);
-                    dDdp((i-1)*dx/ddx+j,:) =   ( (dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:)) * ddx/dL ...
-                                                   + (dUdp(2*P_ind(j+1),:) - dUdp(2*P_ind(j),:)) * ddy/dL) / dL;    
+                    dDdp((i-1)*n+j,:) =   ( (dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:)) * ddx/dL ...
+                                                   + (dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:)) * ddy/dL) / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
  
         case 3
@@ -77,19 +86,21 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else 
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1);
                     P_coor2(j+1,2) = P_coor2(j,2)+ddy;
-                    e = 1e-6;
+                     
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = ddy;
-                    dDdp((i-1)*dx/ddx+j,:) = ( dUdp(2*P_ind(j+1),:) - dUdp(2*P_ind(j),:) )  / dL;    
+                    dDdp((i-1)*n+j,:) = ( dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:) )  / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
  
         case 4 
@@ -98,21 +109,24 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)-ddx;
                     P_coor2(j+1,2) = P_coor2(j,2)+ddy;
-                    e = 1e-6;
+                   
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = sqrt(ddx^2+ddy^2);
-                    dDdp((i-1)*dx/ddx+j,:) =   -( (dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:)) * ddx/dL ...
-                                                   + (dUdp(2*P_ind(j+1),:) - dUdp(2*P_ind(j),:)) * ddy/dL) / dL;    
+                    dDdp((i-1)*n+j,:) =   ( (dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:)) * (-ddx/dL) ...
+                                                   + (dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:)) * ddy/dL) / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
+
         case 5
             P_coor(i+1,1) = P_coor(i,1)-dx;
             P_coor(i+1,2) = P_coor(i,2);
@@ -120,19 +134,21 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else 
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)-ddx;
                     P_coor2(j+1,2) = P_coor2(j,2);
-                    e = 1e-6;
+                    
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = ddx;
-                    dDdp((i-1)*dx/ddx+j,:) = -( dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:) )  / dL;    
+                    dDdp((i-1)*n+j,:) = -( dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:) )  / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
  
         case 6 
@@ -141,20 +157,22 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)-ddx;
                     P_coor2(j+1,2) = P_coor2(j,2)-ddy;
-                    e = 1e-6;
+                    
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = sqrt(ddx^2+ddy^2);
-                    dDdp((i-1)*dx/ddx+j,:) =   -( (dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:)) * ddx/dL ...
-                                                   - (dUdp(2*P_ind(j+1),:) - dUdp(2*P_ind(j),:)) * ddy/dL) / dL;    
+                    dDdp((i-1)*n+j,:) =   ( (dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:)) * (-ddx/dL) ...
+                                                   + (dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:)) * (-ddy/dL) ) / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
 
         case 7
@@ -163,43 +181,46 @@ for i = 1:length(L)
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb) % outside the domain
                 break 
             else 
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1);
                     P_coor2(j+1,2) = P_coor2(j,2)-ddy;
-                    e = 1e-4;
+                   
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
                        
                     dL = ddy;
-                    dDdp((i-1)*dx/ddx+j,:) =   -( dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:) ) / dL;  
+                    dDdp((i-1)*round(n)+j,:) = -( dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:) ) / dL;  
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
 
-%             theta(i) = 3*pi/2;
         case 8
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2)-dy;
             if (P_coor(i+1,1)<Lb || P_coor(i+1,1)>Rb || P_coor(i+1,2)<Bb || P_coor(i+1,2)>Tb)
                 break 
             else
-                P_coor2 = zeros(dx/ddx,2);
+                P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
 
-                for j = 1:dx/ddx-1
+                for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)+ddx;
                     P_coor2(j+1,2) = P_coor2(j,2)-ddy;
-                    e = 1e-6;
+                  
                     P_ind_temp =  find(abs(coor2(:,1)-P_coor2(j+1,1))<e);
                     Ind =  find(abs(coor2(P_ind_temp,2)-P_coor2(j+1,2))<e);
-                    P_ind(j+1) = P_ind_temp(Ind);
+                    P_inds(j+1) = P_ind_temp(Ind);
 
                     dL = sqrt(ddx^2+ddy^2);
-                    dDdp((i-1)*dx/ddx+j,:) =   ( (dUdp(2*P_ind(j+1)-1,:) - dUdp(2*P_ind(j)-1,:)) * ddx/dL ...
-                                                   - (dUdp(2*P_ind(j+1),:) - dUdp(2*P_ind(j),:)) * ddy/dL) / dL;    
+                    dDdp((i-1)*n+j,:) =   ( (dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:)) * ddx/dL ...
+                                                   + (dUdp(2*P_inds(j+1),:) - dUdp(2*P_inds(j),:)) * (-ddy/dL) ) / dL;    
                 end
+                P_ind(i+1) = P_inds(end);
+                P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
             end
  
     end
