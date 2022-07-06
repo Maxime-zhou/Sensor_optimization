@@ -138,6 +138,7 @@ for i = 1:length(P)
     dpi = 1e-3;     % add a small perturbation at one component of P each time
     dp = zeros(1,length(P));
     dp(i) = dpi;
+ 
     dDdp(:,:,i) = (Plate_shear_Dn(P+dp) - Dn)/dpi; 
 
 end
