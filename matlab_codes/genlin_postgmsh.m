@@ -16,7 +16,18 @@ for icomp=1:ndof                                      % for each component
  end
  fprintf(fmid,'%s\n','$EndNodeData');
 end
- 
+
+% strain output
+for icomp=1:Sdim
+ fprintf(fmid,'%s\n','$NodeData','1',...
+              ['"D',num2str(icomp),'"'],'1','0.0','3','0','1');
+ fprintf(fmid,'%d\n',analysis.NN);
+ for n=1:analysis.NN
+  fprintf(fmid,'%d %E\n',n,Dn(n,icomp));   
+ end
+ fprintf(fmid,'%s\n','$EndNodeData');
+end
+
 % stress output
 for icomp=1:Sdim
  fprintf(fmid,'%s\n','$NodeData','1',...

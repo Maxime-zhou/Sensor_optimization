@@ -2,7 +2,7 @@
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 % Stresses at gauss points: Q4 
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-function Sg=Q4_2S_solid_orth_Sg(X,mate,Ue)
+function [Sg,Dg]=Q4_2S_solid_orth_Sg(X,mate,Ue)
 
 E1=mate(1); % mate: material properties
 E2=mate(2);
@@ -16,6 +16,7 @@ A = [E1/(1-nu12*nu21),    nu12*E2/(1-nu12*nu21),  0;
 
 a_gauss=1/sqrt(3)*[-1 1];                    % Gauss abscissae
 Sg=zeros(3,3);
+Dg=zeros(3,3);
 g=0;   
 for g1=1:2,                                  % loop over Gauss points
  a1=a_gauss(g1);                             % param. coord. of gauss point
@@ -33,6 +34,7 @@ for g1=1:2,                                  % loop over Gauss points
      G(1,2) G(1,1) G(2,2) G(2,1)...
      G(3,2) G(3,1) G(4,2) G(4,1)];
   g=g+1;
+  Dg(g,:) = B*Ue;
   Sg(g,:)=(A*B*Ue)';
  end 
 end

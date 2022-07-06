@@ -1,0 +1,6 @@
+L = 33:36;
+dDdp = zeros(length(L)-1,4);
+for i =1:length(L)-1
+    dDdp(i,:) = (dUdp(2*L(i+1),:) - dUdp(2*L(i),:) ) / dy;
+end 
+Q = trace(dDdp'*dDdp);
