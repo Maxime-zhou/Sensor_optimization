@@ -21,10 +21,10 @@ Line(4) = {4, 1};
 //Transfinite Curve{4} = 38;
 
 
-Transfinite Curve{1} = 81;
-Transfinite Curve{2} = 161;
-Transfinite Curve{3} = 81;
-Transfinite Curve{4} = 161;
+Transfinite Curve{1} = 11;
+Transfinite Curve{2} = 21;
+Transfinite Curve{3} = 11;
+Transfinite Curve{4} = 21;
 //Line Loops
 
 Line Loop(1) = {1, 2, 3, 4};

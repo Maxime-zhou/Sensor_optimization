@@ -190,7 +190,7 @@ F3 = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,3,1));
 % First try of Genetic algorithm
 % here, the only design valiables are the angles of fiber
 
-[U, K, dKdp, dUdp,coor2, element] = Plate_shear(P);
+[U, K, dKdp, dUdp, coor2, element] = Plate_shear(P);
 
 % IS = find(coor2(:,1)==0);
 % Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
@@ -201,9 +201,9 @@ fun_dev = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
 
 
 
-L0 =7*ones(5);  % initial angles
+L0 =1*ones(5);  % initial angles
 L2 = [3,1,3,2,3,2];
-[Q_f,dDdp2] = Q_fiber_2m(Pos_ini,L0,dUdp,coor2,0.05,0.00625);
+% [Q_f,dDdp2] = Q_fiber_2m(Pos_ini,L0,dUdp,coor2,0.05,0.00625);
  
 Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
 [Q_f1_t,dDdp1] = Q_fiber_dev(Pos_ini,L0,dUdp,coor);

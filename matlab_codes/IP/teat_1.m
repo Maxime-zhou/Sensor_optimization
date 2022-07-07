@@ -2,30 +2,44 @@ clear
 P = [130e3 10e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
 Pscale = [260e3 20e3 0.6 10e3];
 P0 = [0.51 0.51 0.51 0.51];
+
+
 % P0 = [131e3 10.5e3 0.31 5.1e3];
 
 % normalization 
 P = P./Pscale;
 
 
-[U, K, dKdp, dUdp,coor2, element] = Plate_shear(P);
+coarse_mesh;
+coor_c = msh.POS;
 
-% IS = find(coor2(:,1)==0);
+[U, K, dKdp, dUdp, coor, element] = Plate_shear_c(P);
+[U2, K2, dKdp2, dUdp2, coor2, element2] = Plate_shear(P);
+
+IS = find(coor2(:,1)==0);
 % Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
-Pos_ini = 418;
+% Pos_ini = 418;
+Pos_ini = 385;
+
+e = 1e-6;
+P_ind_temp =  find(abs(coor_c(:,1)-coor2(Pos_ini,1))<e);
+Ind =  find(abs(coor_c(P_ind_temp,2)-coor2(Pos_ini,2))<e);
+P_indc = P_ind_temp(Ind);
+
+Pos_inic = 33;
 
 L0 =3*ones(1,5);  % initial angles
-L2 = [3,2,2,3,2];
-
+L2 = [7,7,7,7,7];
+% L2 =  [3     7     3     3     3];
 
 % [Q_f1_t,dDdp1] = Q_fiber_dev(Pos_ini,L0,dUdp,coor2);
-Q_f = -Q_fiber_2m(Pos_ini,L2,dUdp,coor2,0.05,0.00625);
+Q_f = -Q_fiber_2m(Pos_ini,L2,dUdp2,coor2,0.05,0.00625);
 % [Q_f,dDdp2] = Q_fiber_2m(Pos_ini,L0,dUdp,coor2,0.05,0.00625);
-
+Q_c = Q_fiber_dev(Pos_inic,L2,dUdp,coor);
 
 dx = 0.05;
 ddx = 0.00625;
-fun = @(L) -Q_fiber_2m(Pos_ini,L,dUdp,coor2,dx,ddx);
+fun = @(L) -Q_fiber_2m(Pos_ini,L,dUdp2,coor2,dx,ddx);
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
