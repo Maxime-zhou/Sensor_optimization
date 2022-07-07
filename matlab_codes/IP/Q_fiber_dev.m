@@ -71,7 +71,7 @@ dDdp = zeros(length(L),size(dUdp,2));
 
 % IS = find(~P_ind);
 % if (~IS==[])
-P_ind = unique(P_ind);
+P_ind = unique(P_ind,'stable'); % delete the repeat points and keep the point order.
 if (length(P_ind)<length(L)+1)
     Q = 0;
 elseif(~all(P_ind))  % if any element of P_ind equal to zero, Q is zero

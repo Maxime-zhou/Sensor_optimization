@@ -49,7 +49,7 @@ for i = 1:length(L)
                     P_inds(j+1) = P_ind_temp(Ind);
                        
                     dL = ddx;
-                    dDdp((i-1)*n+j,:) =   ( dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:) ) / dL;  
+                    dDdp((i-1)*n+j,:) = ( dUdp(2*P_inds(j+1)-1,:) - dUdp(2*P_inds(j)-1,:) ) / dL;  
                 end
                 P_ind(i+1) = P_inds(end);
                 P_inds(1) = P_inds(end);  %the last point of current segment is the start point of next segment.
@@ -227,8 +227,16 @@ for i = 1:length(L)
 
  
 end
-% Q = det(dDdp'*dDdp);
-Q = trace(dDdp'*dDdp);
+
+
+% check the existence of repeat points, Q=0 if in that case. 
+P_ind = unique(P_ind,'stable'); 
+if (length(P_ind)<length(L)+1)
+    Q = 0;
+else
+    % Q = det(dDdp'*dDdp);
+    Q = trace(dDdp'*dDdp);
+end
 
 % dDdp = zeros(length(L),size(dUdp,2));
 
