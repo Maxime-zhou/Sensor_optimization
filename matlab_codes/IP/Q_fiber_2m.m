@@ -22,12 +22,6 @@ P_coor(1,:) = coor2(Pos_ini,:);
 P_ind(1) = Pos_ini;
 P_inds(1) = Pos_ini;      % need to use athe index of fine mesh.
 
-% if L indicate a overlapping path, set Q = 0
-% for i=1:length(L)-1
-%     if L(i+1) - L(i) == 4
-%         Q = 0;
-%     end
-% end
 dDdp = zeros(length(L)*n,size(dUdp,2));
 
 for i = 1:length(L)
