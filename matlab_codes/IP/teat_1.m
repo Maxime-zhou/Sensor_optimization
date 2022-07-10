@@ -1,4 +1,5 @@
 clear
+addpath(genpath('../'))  
 P = [130e3 10e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
 Pscale = [260e3 20e3 0.6 10e3];
 P0 = [0.51 0.51 0.51 0.51];
@@ -16,10 +17,10 @@ coor_c = msh.POS;
 [U, K, dKdp, dUdp, coor, element] = Plate_shear_c(P);
 [U2, K2, dKdp2, dUdp2, coor2, element2] = Plate_shear(P);
 
-IS = find(coor2(:,1)==0);
-% Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
+IS = find(coor2(:,2)==0);
+Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
 % Pos_ini = 418;
-Pos_ini = 385;
+% Pos_ini = 385;
 
 e = 1e-6;
 P_ind_temp =  find(abs(coor_c(:,1)-coor2(Pos_ini,1))<e);

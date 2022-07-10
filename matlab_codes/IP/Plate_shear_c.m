@@ -87,6 +87,7 @@ F=zeros(analysis.neq,1);                     % allocates rhs vector
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add by zzd
 dKdp=zeros(analysis.neq,analysis.neq,length(P));
+% dKdp = spalloc(analysis.neq,analysis.neq,ncoeffs);
 % dJdU=zeros(analysis.neq,1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
