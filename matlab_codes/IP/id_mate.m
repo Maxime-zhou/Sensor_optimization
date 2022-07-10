@@ -19,10 +19,14 @@ alpha = 1e-5;            % dimensionless regularization paramete
 
 % Plate_shear(P);
 
-[U, K, dKdp, dUdp1, coor, element] = Plate_shear(P); % observed data without noise, Dn is the strain
-dUdp1_x = dUdp1(1:2:end,:);
-dUdp1_y = dUdp1(2:2:end,:);
+[U, K, dKdp, dUdp, coor, element] = Plate_shear_c(P); % observed data without noise, Dn is the strain
 
+% dUdp1_x = dUdp1(1:2:end,:);
+% dUdp1_y = dUdp1(2:2:end,:);
+
+%-------------------------------------------------------------
+% add a noise
+%
 % mu = 0.1*mean(abs(U)); % mean value of noise
 % sigma = 0.2*mu; 
 % R = diag(sigma.^2); % covariance matrix of noise
@@ -33,19 +37,19 @@ sigma = 0.2*mu;
 U_noise = mu + randn*sigma;
 U_n = U + U_noise;
 
-% calculate the derivates of U with respect to P
-% P = [0.8 0.2 0.6 0.6];
-dUdp = zeros(size(U,1),length(P));
-for i = 1:length(P)
-    dpi = 1e-3;     % add a small perturbation at one component of P each time
 
-    dp = zeros(1,length(P));
-    dp(i) = dpi;
-    dUdp(:,i) = (Plate_shear(P+dp) - Plate_shear(P))/dpi;
-end
+%----------------------------------------------------------------------
+% calculate the derivates of U with respect to P, numberical method
+%
+% dUdp = zeros(size(U,1),length(P));
+% for i = 1:length(P)
+%     dpi = 1e-3;     % add a small perturbation at one component of P each time
+% 
+%     dp = zeros(1,length(P));
+%     dp(i) = dpi;
+%     dUdp(:,i) = (Plate_shear(P+dp) - Plate_shear(P))/dpi;
+% end
 
-% dUdp_x = dUdp(1:size(U,1),:);
-% L = randperm(size(U,1),100); % choose 100 measurement points randomly
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,13 +88,18 @@ end
 %       set (gca,'DataAspectRatio', [1 1 1])
 %     end
 % end
-[xq,yq] = meshgrid(0:.01:0.5, 0:.02:1);
-vq = griddata(coor(:,1), coor(:,2),dUdp1_x(:,1), xq,yq);
-contour(xq,yq,vq,Fill="on",ShowText="on")
-colorbar
+
+% a plot of dUdp1_x
+% [xq,yq] = meshgrid(0:.01:0.5, 0:.02:1);
+% vq = griddata(coor(:,1), coor(:,2),dUdp1_x(:,1), xq,yq);
+% contour(xq,yq,vq,Fill="on",ShowText="on")
+% colorbar
 % hold on
 % plot3(coor(:,1),coor(:,2),dUdp1_x(:,1),'o')
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% single point sensor optimization
+
 L = [33];
 % L1 = 1:100;
 L1 = [20 31 58 76]; % L indicate the measured dofs.
@@ -100,8 +109,10 @@ Q1 = dUdp(L1,:)'*dUdp(L1,:);
 b = trace(Q);   
 b1 = trace(Q1);
 b_det = det(Q);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-N0 = 10;
+%---------------------------------------------------------------------------
+% FSSP algo.
+%
+N0 = 1;
 % L_E = FSSP_FIM(L0,N0,U,dUdp(:,1));
 % L_nu = FSSP_FIM(L0,N0,U,dUdp(:,2));
 % L_global = FSSP_FIM(L0,N0,U,dUdp);
@@ -130,83 +141,86 @@ L_global_det = FSSP_FIM_det(N0,dUdp);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using numerical method to compute the derivative of strain
-[Dn, coor, element2] = Plate_shear_Dn(P);
-dDdp = zeros(size(Dn,1),size(Dn,2),length(P));
- 
-for i = 1:length(P)
-
-    dpi = 1e-3;     % add a small perturbation at one component of P each time
-    dp = zeros(1,length(P));
-    dp(i) = dpi;
- 
-    dDdp(:,:,i) = (Plate_shear_Dn(P+dp) - Dn)/dpi; 
-
-end
-
-F = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,1,1));
-F2 = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,2,1));
-F3 = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,3,1));
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% using greedy algorithm to find a optimal fiber placement
-% IS = find(coor(:,1)==0); % index of start node, at the right boundary 
-% L_fiber = 0;
-% Lmax = 2;
-% L = [];
-% % L0 = IS(randperm(length(IS),1));
-% L0 = 33;
-% L = [L,L0];
-% while (L_fiber<Lmax)
-%     [row,~]=find(element == L(end));
+%
+% [Dn, coor, element2] = Plate_shear_Dn(P);
+% dDdp = zeros(size(Dn,1),size(Dn,2),length(P));
+%  
+% for i = 1:length(P)
 % 
-%     nodes_nb = unique(element(row,:)); % neighborhood nodes
-% %     dDdp = zeros(length(nodes_nb),1);
-%     Q_tr = zeros(length(nodes_nb),1);
-%     for i = 1:length(nodes_nb)
-%         if (ismember(nodes_nb(i),L))
-% %             dDdp(i)=0;
-%             Q_tr(i)=0;
-%         else
-%             dx = coor(nodes_nb(i),1)-coor(L(end),1);
-%             dy = coor(nodes_nb(i),2)-coor(L(end),2);
-%             dL = sqrt(dx^2+dy^2);
-%             dDdp = ( (dUdp(2*nodes_nb(i)-1,:) - dUdp(2*L(end)-1,:)) * (dx/dL) + ...
-%                       (dUdp(2*nodes_nb(i),:) - dUdp(2*L(end),:)) * (dy/dL) ) / dL;
-%             Q_tr(i) =trace(dDdp'*dDdp);
-%         end
-%     end
-% %     [~,ind] = max(dDdp);
-%     [~,ind]=max(Q_tr);
-%     L = [L,nodes_nb(ind)];
-%     L_fiber = L_fiber+dL;
+%     dpi = 1e-3;     % add a small perturbation at one component of P each time
+%     dp = zeros(1,length(P));
+%     dp(i) = dpi;
+%  
+%     dDdp(:,:,i) = (Plate_shear_Dn(P+dp) - Dn)/dpi; 
+% 
 % end
+% 
+% F = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,1,1));
+% F2 = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,2,1));
+% F3 = scatteredInterpolant(coor(:,1),coor(:,2),dDdp(:,3,1));
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% continuous fiber sensor optimization
+%
+% using greedy algorithm to find a optimal fiber placement
+
+L_fiber = 0;
+Lmax = 2;
+L = [];
+
+IS = find(coor(:,2)==0); % index of start node, at the bottom boundary 
+L0 = IS(randperm(length(IS),1));
+% L0 = 33;
+L = [L,L0];
+while (L_fiber<Lmax)
+    [row,~]=find(element == L(end));
+
+    nodes_nb = unique(element(row,:)); % neighborhood nodes 
+    Q_tr = zeros(length(nodes_nb),1);
+    for i = 1:length(nodes_nb)
+        if (ismember(nodes_nb(i),L))
+            Q_tr(i)=0;
+        else
+            dx = coor(nodes_nb(i),1)-coor(L(end),1);
+            dy = coor(nodes_nb(i),2)-coor(L(end),2);
+            dL = sqrt(dx^2+dy^2);
+            dDdp = ( (dUdp(2*nodes_nb(i)-1,:) - dUdp(2*L(end)-1,:)) * (dx/dL) + ...
+                      (dUdp(2*nodes_nb(i),:) - dUdp(2*L(end),:)) * (dy/dL) ) / dL;
+            Q_tr(i) =trace(dDdp'*dDdp);
+        end
+    end
+
+    [~,ind]=max(Q_tr);
+    L = [L,nodes_nb(ind)];
+    L_fiber = L_fiber+dL;
+end
+%--------------------------------------------------------------------
 
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------
 % First try of Genetic algorithm
 % here, the only design valiables are the angles of fiber
 
-[U, K, dKdp, dUdp, coor2, element] = Plate_shear(P);
+% [U2, K2, dKdp2, dUdp2, coor2, element2] = Plate_shear(P);
 
-% IS = find(coor2(:,1)==0);
-% Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at right boundary  
-Pos_ini = 33;
+% IS = find(coor2(:,2)==0);
+% Pos_ini = IS(randperm(length(IS),1)); % randomly choose a initial point at bottom boundary  
+Pos_ini = 39;
 
 fun = @(L) -Q_fiber (Pos_ini,L,dUdp,coor);
 fun_dev = @(L) -Q_fiber_dev(Pos_ini,L,dUdp,coor);
 
 
 
-L0 =1*ones(5);  % initial angles
-L2 = [3,1,3,2,3,2];
+L0 =1*ones(1,10);  % initial angles
+L2 = [6 6 6 7 7 7 7 7 7 7];
 % [Q_f,dDdp2] = Q_fiber_2m(Pos_ini,L0,dUdp,coor2,0.05,0.00625);
  
-Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
-[Q_f1_t,dDdp1] = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
+% Q_f1 = Q_fiber_dev(Pos_ini,L0,dUdp,coor);
+Q_f1_t = Q_fiber_dev(Pos_ini,L2,dUdp,coor);
 
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));

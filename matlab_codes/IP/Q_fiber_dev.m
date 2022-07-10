@@ -1,5 +1,5 @@
 % replace if else to swith case.
-function [Q,dDdp] = Q_fiber_dev(Pos_ini,L,dUdp,coor)
+function Q = Q_fiber_dev(Pos_ini,L,dUdp,coor)
 
 Lb = min(coor(:,1)); % left boundary coor. of the domain
 Rb = max(coor(:,1)); % right boundary of the domain
@@ -7,8 +7,8 @@ Bb = min(coor(:,2)); % bottom boundary of the domain
 Tb = max(coor(:,2)); % top boundary of the domain
 
 dx = coor(5,1) - coor(1,1); % mesh size in x direction 
-dy = coor(44,2) - coor(1,2); % mesh size in y direction
-
+% dy = coor(44,2) - coor(1,2); % mesh size in y direction
+dy = dx;
 
 P_coor = zeros(length(L)+1,2); % initialize the coordinates of the connect points
 P_ind = zeros(length(L)+1,1);  % initialize the indices of the coor.
