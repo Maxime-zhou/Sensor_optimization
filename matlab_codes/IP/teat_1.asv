@@ -42,8 +42,7 @@ fun = @(L) -Q_fiber_2m(Pos_ini,L,dUdp2,coor2,dx,ddx);
 lb = ones(1,length(L0));
 ub = 8*ones(1,length(L0));
 intcon = 1:length(L0);  % constrian design variables are integer
-options = optimoptions('ga','PopulationSize',50,'CrossoverFraction',0.9,'Display','iter', ...
-    'MutationFcn', {@mutationuniform, 0.3},'ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
+options = optimoptions('ga','PopulationSize',40,'CrossoverFraction',0.9,'Display','iter','ConstraintTolerance',1e-9, 'FunctionTolerance',1e-9,'PlotFcn', @gaplotbestf);
 
 
 [Lsol,fval] = ga(fun,length(L0),[],[],[],[],lb,ub,[],intcon,options)
