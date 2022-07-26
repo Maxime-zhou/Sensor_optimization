@@ -7,7 +7,7 @@ clear
 % P0 = [10.1 0.31];       % prior guess of parameters
 
 % orthotropic case
-P = [130e3 10e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
+P = [50e3 50e3 0.3 5e3]; % The units of length, force and modulus is mm, N and Mpa
 Pscale = [260e3 20e3 0.6 10e3];
 P0 = [0.51 0.51 0.51 0.51];
 % P0 = [131e3 10.5e3 0.31 5.1e3];

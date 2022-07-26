@@ -1,5 +1,5 @@
 % file ='MyGeometry_rect_ddx000625.msh';
-file = 'MyGeometry_rect_dx05.msh';
+file = 'MyGeometry_rect_coarse01.msh';
 
 % ANALYSIS TYPE
 % analysis.type = 5;
