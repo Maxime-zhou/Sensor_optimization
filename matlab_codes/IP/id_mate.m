@@ -1,4 +1,3 @@
-
 clear 
 % isotrpic case
 % P = [10 0.3];           % Young and Poisson
@@ -187,7 +186,7 @@ while (L_fiber<Lmax)
             dL = sqrt(dx^2+dy^2);
             dDdp = ( (dUdp(2*nodes_nb(i)-1,:) - dUdp(2*L(end)-1,:)) * (dx/dL) + ...
                       (dUdp(2*nodes_nb(i),:) - dUdp(2*L(end),:)) * (dy/dL) ) / dL;
-            Q_tr(i) =trace(dDdp'*dDdp);
+            Q_tr(i) = trace(dDdp'*dDdp);
         end
     end
 

@@ -1,4 +1,4 @@
-function Q = Q_fiber_2m(Pos_ini,L,dUdp,coor2,dx,ddx)
+function Q = Q_fiber_2m_cc(Pos_ini,L,dUdp,coor2,dx,ddx)
 
 Lb = min(coor2(:,1)); % left boundary coor. of the domain
 Rb = max(coor2(:,1)); % right boundary of the domain
@@ -24,14 +24,22 @@ P_inds(1) = Pos_ini;
 dDdp = zeros(length(L)*n,size(dUdp,2));
 
 for i = 1:length(L)
+    
+    % constrain of curvation 
+    if i==1
+       
+    elseif abs(L(i)-L(i-1))==3 || abs(L(i)-L(i-1))==5
+        break
+    end
+
     switch L(i)
         case 1 
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2);
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e) % outside the domain
                 break 
-            else 
-                P_coor2 = zeros(n+1,2);
+            else
+                P_coor2 = zeros(n+1,2); % The coor. of fine mesh nodes of each segments
                 P_coor2(1,:) = P_coor(i,:);
                 for j = 1:n
                     P_coor2(j+1,1) = P_coor2(j,1)+ddx;
@@ -100,7 +108,7 @@ for i = 1:length(L)
             P_coor(i+1,1) = P_coor(i,1)-dx;
             P_coor(i+1,2) = P_coor(i,2)+dy;
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e)
-                break 
+                break
             else
                 P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
@@ -125,7 +133,7 @@ for i = 1:length(L)
             P_coor(i+1,2) = P_coor(i,2);
             
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e)
-                break 
+                break
             else 
                 P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
@@ -148,7 +156,7 @@ for i = 1:length(L)
             P_coor(i+1,1) = P_coor(i,1)-dx;
             P_coor(i+1,2) = P_coor(i,2)-dy;
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e)
-                break 
+                break
             else
                 P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
@@ -172,7 +180,7 @@ for i = 1:length(L)
             P_coor(i+1,1) = P_coor(i,1);
             P_coor(i+1,2) = P_coor(i,2)-dy;
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e) % outside the domain
-                break 
+                break
             else 
                 P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
@@ -195,7 +203,7 @@ for i = 1:length(L)
             P_coor(i+1,1) = P_coor(i,1)+dx;
             P_coor(i+1,2) = P_coor(i,2)-dy;
             if (P_coor(i+1,1)<Lb-e || P_coor(i+1,1)>Rb+e || P_coor(i+1,2)<Bb-e || P_coor(i+1,2)>Tb+e)
-                break 
+                break
             else
                 P_coor2 = zeros(n+1,2);
                 P_coor2(1,:) = P_coor(i,:);
